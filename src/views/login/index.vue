@@ -61,7 +61,8 @@ export default {
               this.$message.success('登录成功')
               // 将token存入localStorage
               localStorage.setItem('token', res.data.data)
-              // this.$router.push({ name: 'Home' })
+              // 跳转到首页
+              this.$router.push({ path: '/' })
             } else {
               this.$message.error(res.data.msg)
             }
