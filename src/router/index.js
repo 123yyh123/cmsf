@@ -28,7 +28,7 @@ export const asyncRoutes = [
   {
     path: '/classroom',
     component: Layout,
-    meta: { title: '教室管理', icon: 'el-icon-office-building', roles: ['admin'] },
+    meta: { title: '教室管理', icon: 'el-icon-set-up', roles: ['admin'] },
     children: [
       {
         path: 'list',
@@ -47,6 +47,21 @@ export const asyncRoutes = [
         name: 'ClassroomStatus',
         component: () => import('@/views/classroom/status'),
         meta: { title: '教室状态管理', roles: ['admin'] }
+      }
+    ]
+  },
+
+    // 楼栋管理
+  {
+    path: '/building',
+    component: Layout,
+    meta: { title: '楼栋管理', icon: 'el-icon-office-building', roles: ['admin'] },
+    children: [
+      {
+        path: 'list',
+        name: 'BuildingList',
+        component: () => import('@/views/building/list'),
+        meta: { title: '楼栋列表', roles: ['admin'] }
       }
     ]
   },

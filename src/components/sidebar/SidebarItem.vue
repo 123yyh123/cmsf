@@ -12,7 +12,7 @@
         :isCollapse="isCollapse"
       />
     </el-submenu>
-    <el-menu-item v-else :index="item.path" :route="item">
+    <el-menu-item v-else :index="item.path" :route="item" style="background-color: transparent;">
       <i :class="item.meta.icon" />
       <span v-if="!isCollapse" slot="title">{{ item.meta.title }}</span>
     </el-menu-item>
