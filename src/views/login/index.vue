@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { login } from '@/apis'
+import { login } from '@/apis/auth'
 export default {
   data() {
     return {

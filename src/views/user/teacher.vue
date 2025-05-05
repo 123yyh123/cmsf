@@ -1,0 +1,269 @@
+<template>
+  <div class="app-container">
+    <el-card>
+      <!-- 查询条件 -->
+      <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px">
+        <el-input v-model="filters.username" placeholder="用户名" style="width: 150px; "
+                  size="small"/>
+        <el-input v-model="filters.teacherNo" placeholder="教工号" style="width: 150px; "
+                  size="small"/>
+        <el-input v-model="filters.title" placeholder="职称" style="width: 150px; " size="small"/>
+        <el-input v-model="filters.department" placeholder="学院" style="width: 150px; "
+                  size="small"/>
+        <el-select v-model="filters.status" placeholder="状态" style="width: 120px; " size="small">
+          <el-option label="启用" :value="1"/>
+          <el-option label="禁用" :value="0"/>
+        </el-select>
+        <div>
+          <el-button type="primary" icon="el-icon-search" size="small" @click="handleSearch">搜索</el-button>
+          <el-button icon="el-icon-refresh" size="small" @click="handleReset">重置</el-button>
+        </div>
+      </div>
+
+      <!-- 教师表格 -->
+      <el-table
+          :data="teacherList"
+          border
+          style="width: 100%;"
+          :height="520"
+          :default-sort="{prop: 'id', order: 'ascending'}"
+          @sort-change="sortChange"
+      >
+        <el-table-column prop="teacherNo" label="教工号" width="100"/>
+        <el-table-column prop="username" label="用户名" width="120"/>
+        <el-table-column prop="realName" label="姓名" width="120"/>
+        <el-table-column prop="gender" label="性别" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.gender === 'F' ? '女' : '男' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="title" label="职称" width="80"/>
+        <el-table-column prop="department" label="学院" width="100"/>
+        <el-table-column prop="phone" label="手机号" width="110"/>
+        <el-table-column prop="email" label="邮箱"/>
+        <el-table-column prop="createTime" label="创建时间" width="120" sortable="custom"
+                         :sort-orders="['ascending', 'descending','null']"/>
+        <el-table-column prop="status" label="状态" width="80">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
+              {{ scope.row.status === 1 ? '启用' : '禁用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <el-pagination
+          style="margin-top: 20px; text-align: right;"
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          :page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
+          :current-page.sync="pageNum"
+          @size-change="handleSizeChange"
+          @current-change="getTeacherList"
+      />
+    </el-card>
+    <el-dialog title="编辑教师" :visible.sync="editDialog" width="500px" center>
+      <el-form :model="editForm" label-width="80px" label-position="left" :rules="editRules" ref="editForm">
+        <el-form-item label="教工号" prop="teacherNo" required>
+          <el-input v-model="editForm.teacherNo" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="姓名" prop="realName" required>
+          <el-input v-model="editForm.realName" :disabled="true"/>
+        </el-form-item>
+        <el-form-item label="用户名" prop="username" required>
+          <el-input v-model="editForm.username"/>
+        </el-form-item>
+        <el-form-item label="职称" prop="title" required>
+          <el-input v-model="editForm.title"/>
+        </el-form-item>
+        <el-form-item label="学院" prop="department" required>
+          <el-input v-model="editForm.department"/>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone" required>
+          <el-input v-model="editForm.phone"/>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email" required>
+          <el-input v-model="editForm.email"/>
+        </el-form-item>
+        <el-form-item label="状态" prop="status" required>
+          <el-select v-model="editForm.status" placeholder="请选择">
+            <el-option label="启用" :value="1"/>
+            <el-option label="禁用" :value="0"/>
+          </el-select>
+        </el-form-item>
+        <el-button type="primary" @click="submitEditForm">保存</el-button>
+        <el-button @click="editDialog = false">取消</el-button>
+      </el-form>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import {getTeacherPageList, deleteTeacher, editTeacher} from '@/apis/user'; // 注意替换成你的实际API路径
+
+export default {
+  data() {
+    return {
+      filters: {
+        username: '',
+        teacherNo: '',
+        title: '',
+        department: '',
+        status: '',
+        orderByField: '',
+        orderByType: ''
+      },
+      editDialog: false,
+      editForm: {
+        id: '',
+        username: '',
+        realName: '',
+        gender: '',
+        title: '',
+        department: '',
+        phone: '',
+        email: '',
+        status: ''
+      },
+      editRules: {
+        username: [
+          {required: true, message: '请输入用户名', trigger: 'blur'},
+          {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'}
+        ],
+        title: [
+          {required: true, message: '请输入职称', trigger: 'blur'},
+          {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'}
+        ],
+        department: [
+          {required: true, message: '请输入学院', trigger: 'blur'},
+          {min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur'}
+        ],
+        phone: [
+          {required: true, message: '请输入手机号', trigger: 'blur'},
+          {pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur'}
+        ],
+        email: [
+          {required: true, message: '请输入邮箱', trigger: 'blur'},
+          {pattern: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/, message: '请输入正确的邮箱', trigger: 'blur'}
+        ]
+      },
+      teacherList: [],
+      pageNum: 1,
+      pageSize: 10,
+      total: 0
+    };
+  },
+  created() {
+    this.getTeacherList();
+  },
+  methods: {
+    sortChange(column) {
+      console.log(column);
+      if (column.order !== 'null') {
+        const orderByField = column.prop;
+        const orderByType = column.order === 'ascending' ? 'asc' : 'desc';
+        this.filters.orderByField = orderByField;
+        this.filters.orderByType = orderByType;
+      } else {
+        this.filters.orderByField = '';
+        this.filters.orderByType = '';
+      }
+      this.pageNum = 1;
+      this.getTeacherList();
+    },
+    getTeacherList() {
+      const params = {
+        ...this.filters,
+        pageNum: this.pageNum,
+        pageSize: this.pageSize
+      };
+      getTeacherPageList(params).then(res => {
+        if (res.data.code === 200) {
+          const data = res.data.data;
+          this.teacherList = data.list;
+          this.total = data.total;
+        } else {
+          this.$message.error(res.data.msg || '获取教师列表失败');
+        }
+      }).catch(err => {
+        console.error(err);
+        this.$message.error('请求失败');
+      });
+    },
+    handleSearch() {
+      this.pageNum = 1;
+      this.getTeacherList();
+    },
+    handleReset() {
+      this.filters = {
+        username: '',
+        teacherNo: '',
+        title: '',
+        department: '',
+        status: ''
+      };
+      this.pageNum = 1;
+      this.getTeacherList();
+    },
+    handleSizeChange(newSize) {
+      this.pageSize = newSize;
+      this.pageNum = 1;
+      this.getTeacherList();
+    },
+    handleEdit(row) {
+      this.editForm = {...row}; // 再赋值
+      this.editDialog = true; // 先打开弹窗
+      this.$nextTick(() => {
+        this.$refs.editForm.clearValidate(); // 最后清除校验
+      });
+    },
+    submitEditForm() {
+      this.$refs.editForm.validate(valid => {
+        if (valid) {
+          editTeacher(this.editForm).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success('编辑成功');
+              this.editDialog = false;
+              this.getTeacherList();
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch(err => {
+            console.error(err);
+            this.$message.error('编辑失败');
+          });
+        } else {
+          this.$message.warning('请填写完整信息');
+        }
+      });
+    },
+    handleDelete(row) {
+      this.$confirm(`确认删除教师 ${row.realName} (${row.username}) 吗？`, '提示', {
+        type: 'warning'
+      }).then(() => {
+        deleteTeacher({userId: row.id}).then(res => {
+          if (res.data.code === 200) {
+            this.$message.success('删除成功');
+            this.getTeacherList();
+          } else {
+            this.$message.error(res.data.msg);
+          }
+        })
+      }).catch(() => {
+      });
+    }
+  }
+};
+</script>
+
+<style scoped>
+</style>

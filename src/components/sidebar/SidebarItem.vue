@@ -2,8 +2,8 @@
   <div v-if="!item.hidden">
     <el-submenu v-if="hasChildren" :index="item.path">
       <template slot="title">
-        <i :class="item.meta.icon" />
-        <span v-if="!isCollapse" slot="title">{{ item.meta.title }}</span>
+        <i :class="item.meta?.icon ? item.meta.icon : 'menu-icon'" />
+        <span v-if="!isCollapse" slot="title">{{ item.meta?.title }}</span>
       </template>
       <SidebarItem
         v-for="child in item.children"
@@ -12,9 +12,13 @@
         :isCollapse="isCollapse"
       />
     </el-submenu>
-    <el-menu-item v-else :index="item.path" :route="item" style="background-color: transparent;">
-      <i :class="item.meta.icon" />
-      <span v-if="!isCollapse" slot="title">{{ item.meta.title }}</span>
+    <el-menu-item v-else
+                  :index="item.name"
+                  :route="item"
+                  :class="{'active-menu': $route.name === item.name}"
+                  style="background-color: #ffffff;">
+      <i :class="item.meta?.icon ? item.meta.icon : ''" />
+      <span v-if="!isCollapse" slot="title">{{ item.meta?.title }}</span>
     </el-menu-item>
   </div>
 </template>
@@ -42,6 +46,10 @@ export default {
 </script>
 
 <style>
+.active-menu{
+    color: #5F9EFF !important;
+    background-color: #ffffff !important;
+}
 .el-menu--collapse .el-submenu__title .el-submenu__icon-arrow {
   display: none;
 }
@@ -73,6 +81,10 @@ export default {
   padding-left: 20px; /* 确保菜单项的左侧和父菜单对齐 */
 }
 
+.el-menu-item:hover {
+  background-color: #ECF5FF !important;
+  color: #303133 !important;
+}
 .el-submenu__title {
   font-size: 14px;
 }

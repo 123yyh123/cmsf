@@ -7,8 +7,15 @@
         <!-- 顶部导航栏 -->
         <el-header class="header">
           <div class="header-left">
-            <el-button @click="toggleCollapse" icon="el-icon-s-fold" circle />
-            <span class="system-name">教室可视化管理系统</span>
+            <el-button @click="toggleCollapse" icon="el-icon-s-fold" type="text" style="margin: 10px"/>
+            <div style="width: 20px"/>
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+              <el-breadcrumb-item
+                v-for="(item, index) in $route.matched"
+                :key="index"
+                >{{ item.meta.title }}</el-breadcrumb-item
+              >
+            </el-breadcrumb>
           </div>
           <div class="header-right">
             <el-dropdown>
@@ -25,7 +32,7 @@
         </el-header>
 
         <!-- 右侧主体 -->
-        <el-main class="main">
+        <el-main class="main" style="height:0;flex-grow:1;">
           <router-view />
         </el-main>
       </el-container>
@@ -96,7 +103,7 @@ export default {
 }
 
 .main {
-  padding: 20px;
+  padding: 15px;
   background-color: #f5f7fa;
   min-height: calc(100vh - 60px);
   overflow: auto;
@@ -110,5 +117,9 @@ export default {
 
 .sidebar-transition-enter, .sidebar-transition-leave-to /* .sidebar-transition-leave-active in <2.1.8 */ {
   transform: translateX(-100%); /* 假设侧边栏从左侧进入，折叠时移出 */
+}
+
+.el-main::-webkit-scrollbar{
+  display: none;
 }
 </style>

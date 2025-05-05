@@ -10,6 +10,11 @@ export const constantRoutes = [
     component: () => import('@/views/login/index.vue'),
     hidden: true
   },
+    {
+    path: '/404',
+    component: () => import('@/views/404'),
+    hidden: true
+  },
   {
     path: '/',
     component: Layout,
@@ -83,12 +88,6 @@ export const asyncRoutes = [
         name: 'StudentManage',
         component: () => import('@/views/user/student'),
         meta: { title: '学生管理', roles: ['admin'] }
-      },
-      {
-        path: 'role',
-        name: 'RoleManage',
-        component: () => import('@/views/user/role'),
-        meta: { title: '角色权限管理', roles: ['admin'] }
       }
     ]
   },
@@ -229,6 +228,7 @@ export const asyncRoutes = [
   {
     path: '/profile',
     component: Layout,
+    meta: { title: '个人中心', icon: 'el-icon-user', roles: ['admin', 'teacher', 'student'] },
     children: [
       {
         path: 'edit',

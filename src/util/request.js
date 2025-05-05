@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { baseUrl } from '@/config/index.js'
 import router from '@/router'
+import qs from 'qs'
 
 // get请求
 export const get = (url, params) => {
@@ -35,7 +36,10 @@ export const del = (url, params) => {
     method: 'delete',
     baseURL: baseUrl,
     url,
-    params
+    params,
+    paramsSerializer: (params) => {
+      return qs.stringify(params, { arrayFormat: 'repeat' });
+    },
   })
 }
 
@@ -61,6 +65,11 @@ axios.interceptors.response.use(
         localStorage.clear()
         // 清空并跳转到登录页
         router.replace('/login').then(() => {
+          location.reload()
+        })
+      }
+      if (response.data.code === 404) {
+        router.replace('/404').then(() => {
           location.reload()
         })
       }

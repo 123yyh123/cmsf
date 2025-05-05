@@ -6,16 +6,15 @@
           class="el-menu-vertical-demo"
           :collapse="isCollapse"
           :collapse-transition="false"
-          background-color="#001529"
-          text-color="#ffffff"
+          background-color="#ffffff"
+          text-color="#303133"
           active-text-color="#409EFF"
           router
-
       >
         <div class="logo-item">
-          <img v-if="!isCollapse" src="@/assets/logo.png" class="logo" alt="logo"/>
-          <img v-if="isCollapse" src="@/assets/logo.png" class="logo-icon" alt="logo"/>
-          <span v-if="!isCollapse" class="logo-text">后台管理系统</span>
+          <img v-if="!isCollapse" src="@/assets/智能化.png" class="logo" alt="logo"/>
+          <img v-if="isCollapse" src="@/assets/智能化.png" class="logo-icon" alt="logo"/>
+          <span v-if="!isCollapse" class="logo-text">教室可视化管理</span>
         </div>
         <template v-for="route in filteredRoutes">
           <SidebarItem :key="route.path" :item="route" :isCollapse="isCollapse"/>
@@ -86,7 +85,7 @@ export default {
   flex-direction: column;
 }
 .sidebar {
-  background: #001529;
+  background-color: #ffffff;
   height: 100%; /* 确保侧边栏高度100% */
   min-height: 100vh; /* 视口高度至少100% */
   display: flex;
@@ -100,22 +99,18 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #001529;
-  color: #fff;
   font-size: 18px;
   font-weight: bold;
   margin: 10px;
   box-sizing: border-box;
-}
-
-.logo-item:hover {
-  background-color: #001529;
-  cursor: pointer;
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .logo {
   height: 100%;
   object-fit: contain;
+  flex: 1;
 }
 
 .logo-icon {
@@ -123,9 +118,11 @@ export default {
   object-fit: contain;
 }
 
-.logo-text:hover {
-  color: #409EFF;
+.logo-text{
+  font-size: 16px;
+  white-space: nowrap;
 }
+
 
 .el-menu-vertical-demo {
   flex: 1;
