@@ -2,17 +2,17 @@
   <div class="app-container">
     <el-card>
       <div style="display: flex; justify-content: space-between">
-        <div>
+        <div style="display: flex;flex-wrap: wrap;gap: 15px 20px">
           <el-input
               placeholder="请输入教室名称"
-              style="width: 200px; margin-right: 20px"
+              style="width: 200px; "
               size="small"
               v-model="searchFields.classroomName"
           ></el-input>
           <!--        筛选楼栋-->
           <el-select
               placeholder="选择楼栋"
-              style="width: 120px; margin-right: 20px"
+              style="width: 120px; "
               size="small"
               v-model="searchFields.building"
           >
@@ -26,7 +26,7 @@
           <!--        状态 空闲/使用中/预约中/维修中-->
           <el-select
               placeholder="选择状态"
-              style="width: 120px; margin-right: 20px"
+              style="width: 120px; "
               size="small"
               v-model="searchFields.status"
           >
@@ -40,7 +40,7 @@
           <!--        用途 自习/教学/会议/考试-->
           <el-select
               placeholder="选择用途"
-              style="width: 120px; margin-right: 20px"
+              style="width: 120px; "
               size="small"
               v-model="searchFields.type"
           >
@@ -51,21 +51,23 @@
                 :value="type.value"
             ></el-option>
           </el-select>
-          <el-button
-              type="primary"
-              icon="el-icon-search"
-              size="small"
-              @click="getClassroomList()"
-          >查询
-          </el-button
-          >
-          <el-button
-              icon="el-icon-refresh"
-              size="small"
-              @click="resetSearchFields()"
-          >重置
-          </el-button
-          >
+          <div>
+            <el-button
+                type="primary"
+                icon="el-icon-search"
+                size="small"
+                @click="getClassroomList()"
+            >查询
+            </el-button
+            >
+            <el-button
+                icon="el-icon-refresh"
+                size="small"
+                @click="resetSearchFields()"
+            >重置
+            </el-button
+            >
+          </div>
         </div>
         <div>
           <el-button
@@ -111,9 +113,11 @@
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <div style="display: flex; justify-content: center;">
-              <el-button size="mini" @click="handleDetail(scope.row)" type="text" style="color: #409eff">详情</el-button>
+              <el-button size="mini" @click="handleDetail(scope.row)" type="text" style="color: #409eff">详情
+              </el-button>
               <el-button size="mini" @click="handleEdit(scope.row)" type="text" style="color: #f4b03e">编辑</el-button>
-              <el-button size="mini" type="text" @click="handleDelete(scope.row)" style="color: #f56c6c">删除</el-button>
+              <el-button size="mini" type="text" @click="handleDelete(scope.row)" style="color: #f56c6c">删除
+              </el-button>
             </div>
           </template>
         </el-table-column>

@@ -12,8 +12,8 @@
           router
       >
         <div class="logo-item">
-          <img v-if="!isCollapse" src="@/assets/智能化.png" class="logo" alt="logo"/>
-          <img v-if="isCollapse" src="@/assets/智能化.png" class="logo-icon" alt="logo"/>
+          <img v-if="!isCollapse" src="../../assets/images/智能化.png" class="logo" alt="logo"/>
+          <img v-if="isCollapse" src="../../assets/images/智能化.png" class="logo-icon" alt="logo"/>
           <span v-if="!isCollapse" class="logo-text">教室可视化管理</span>
         </div>
         <template v-for="route in filteredRoutes">

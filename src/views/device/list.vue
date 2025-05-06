@@ -19,7 +19,7 @@
             size="small"
             style="width: 240px;"
         />
-        <el-select v-model:size="filters.bindStatus" placeholder="绑定状态" style="width: 120px;" size="small">
+        <el-select v-model:size="filters.bindingStatus" placeholder="绑定状态" style="width: 120px;" size="small">
           <el-option label="已绑定" value="已绑定"/>
           <el-option label="未绑定" value="未绑定"/>
         </el-select>
@@ -51,19 +51,19 @@
         <el-table-column prop="manufacturer" label="制造商"/>
         <el-table-column prop="purchaseDate" label="购入日期" width="120"/>
         <el-table-column prop="warrantyUntil" label="保修到期" width="120"/>
-        <el-table-column prop="bindStatus" label="绑定状态" width="100">
+        <el-table-column prop="bindingStatus" label="绑定状态" width="100">
           <template slot-scope="scope">
             <el-tag
-                :type="scope.row.bindStatus === '已绑定' ? 'success' :
-                      scope.row.bindStatus === '未绑定' ? 'info' : 'warning'"
+                :type="scope.row.bindingStatus === '已绑定' ? 'success' :
+                      scope.row.bindingStatus === '未绑定' ? 'info' : 'warning'"
             >
-              {{ scope.row.bindStatus }}
+              {{ scope.row.bindingStatus }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template slot-scope="scope">
-            <el-tag
+            <el-tag @click="updateDeviceStatus(scope.row)"
                 :type="scope.row.status === '正常' ? 'success' :
                       scope.row.status === '维修中' ? 'warning' :
                       scope.row.status === '损坏' ? 'danger' : 'info'"
@@ -72,10 +72,12 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button size="mini" type="text" @click="handleBindDetail(scope.row)" style="color: #409eff">绑定详情
+            </el-button>
+            <el-button size="mini" type="text" @click="handleEdit(scope.row)" style="color: #f4b03e">编辑</el-button>
+            <el-button size="mini" type="text" @click="handleDelete(scope.row)" style="color: #f56c6c">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -130,13 +132,40 @@
         <el-button @click="editDialog = false">取消</el-button>
       </el-form>
     </el-dialog>
+    <el-dialog title="绑定详情" :visible.sync="bindDetailDialog" width="500px" center>
+      <BindTimeline v-if="deviceData" :device="deviceData"/>
+    </el-dialog>
+    <el-dialog title="修改设备状态" :visible.sync="editStatusDialog" width="500px" center>
+      <el-form :model="editStatusForm" label-width="100px" ref="editStatusForm">
+        <el-form-item label="设备编号" prop="deviceCode">
+          <el-input v-model="editStatusForm.deviceCode" disabled/>
+        </el-form-item>
+        <el-form-item label="设备名称" prop="deviceName">
+          <el-input v-model="editStatusForm.deviceName" disabled/>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="editStatusForm.status" placeholder="请选择">
+            <el-option label="正常" value="正常"/>
+            <el-option label="损坏" value="损坏"/>
+            <el-option label="维修中" value="维修中"/>
+            <el-option label="报废" value="报废"/>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button type="primary" @click="submitEditStatusForm">保存</el-button>
+        <el-button @click="editStatusDialog = false">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {getDevicePageList, deleteDevice, editDevice} from '@/apis/device';
+import {getDevicePageList, deleteDevice, editDevice, getDeviceBindTrace} from '@/apis/device';
+import BindTimeline from "@/components/BindTimeline.vue";
 
 export default {
+  components: {BindTimeline},
   data() {
     return {
       pickerOptions: {
@@ -149,7 +178,7 @@ export default {
         deviceCode: '',
         deviceName: '',
         type: '',
-        bindStatus: '',
+        bindingStatus: '',
         purchaseDate: '',
         status: '',
         manufacturer: '',
@@ -161,6 +190,8 @@ export default {
       pageNum: 1,
       pageSize: 10,
       editDialog: false,
+      bindDetailDialog: false,
+      editStatusDialog:false,
       editForm: {
         id: '',
         deviceCode: '',
@@ -176,13 +207,38 @@ export default {
         deviceName: [{required: true, message: '请输入设备名称', trigger: 'blur'}],
         type: [{required: true, message: '请输入设备类型', trigger: 'blur'}],
         status: [{required: true, message: '请选择设备状态', trigger: 'change'}]
-      }
+      },
+      deviceData: {},
+      editStatusForm: {
+        id: '',
+        status: '',
+        deviceCode: '',
+        deviceName: ''
+      },
     };
   },
   created() {
     this.getDeviceList();
   },
   methods: {
+    updateDeviceStatus(column){
+      this.editStatusForm.id = column.id;
+      this.editStatusForm.status = column.status;
+      this.editStatusForm.deviceCode = column.deviceCode;
+      this.editStatusForm.deviceName=column.deviceName;
+      this.editStatusDialog = true;
+    },
+    submitEditStatusForm(){
+      //TODO
+    },
+    handleBindDetail(column) {
+      getDeviceBindTrace({deviceId: column.id}).then(res => {
+        if (res.data.code === 200) {
+          this.bindDetailDialog = true;
+          this.deviceData = res.data.data;
+        }
+      });
+    },
     sortChange(column) {
       if (column.order !== 'null') {
         this.filters.orderByField = column.prop;
@@ -225,7 +281,7 @@ export default {
         deviceCode: '',
         deviceName: '',
         type: '',
-        bindStatus: '',
+        bindingStatus: '',
         purchaseDate: '',
         status: '',
         manufacturer: '',
@@ -278,7 +334,9 @@ export default {
           } else {
             this.$message.error(res.data.msg || '删除失败');
           }
-        });
+        }).catch(err => {
+          console.error(err);
+        })
       }).catch(() => {
       });
     }
