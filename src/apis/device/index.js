@@ -17,3 +17,11 @@ export const editDevice = (params) => {
 export const getDeviceBindTrace = (params) => {
     return get(baseUrl + '/deviceBindStatus/trace', params)
 }
+
+export const updateDeviceBindStatus = (params) => {
+    return put(baseUrl + '/deviceBindStatus/update', params)
+}
+
+export const deleteDeviceBatch= (params) => {
+    return del(baseUrl + '/deleteBatch', params)
+}

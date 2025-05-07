@@ -93,7 +93,6 @@
           style="width: 100%; margin-top: 20px"
           height="520"
           border
-          @selection-change="handleSelectionChange"
           @select="handleSelect"
           @select-all="handleSelectAll"
       >
@@ -109,7 +108,14 @@
         <el-table-column prop="floor" label="楼层"/>
         <el-table-column prop="capacity" label="容量"/>
         <el-table-column prop="type" label="用途"/>
-        <el-table-column prop="status" label="状态"/>
+        <el-table-column prop="status" label="状态">
+          <template slot-scope="scope">
+            <el-tag
+                :type="scope.row.status === '空闲' ? 'success' : scope.row.status === '使用中' ? 'warning' : scope.row.status === '预约中' ? 'info' : 'danger'"
+            >{{ scope.row.status }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <div style="display: flex; justify-content: center;">
@@ -256,9 +262,59 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button @click="editClassroomDialog = false">取 消</el-button>
           <el-button type="primary" @click="submitEditForm">确 定</el-button>
+          <el-button @click="editClassroomDialog = false">取 消</el-button>
         </span>
+      </el-dialog>
+      <el-dialog title="教室详情" :visible.sync="classroomDetailDialog" fullscreen>
+                <div class="classroom-detail">
+                  <el-card shadow="hover" class="box-card">
+                    <div slot="header" class="clearfix">
+                      <span>{{ classroomDetail.classroomName || '教室详情' }}</span>
+                    </div>
+
+                    <div class="content">
+                      <el-row :gutter="20">
+                        <el-col :span="12">
+                          <el-image
+                              :src="classroomDetail.photoUrl"
+                              fit="cover"
+                              style="width: 100%; height: 250px"
+                              :preview-src-list="[classroomDetail.photoUrl]"
+                              v-if="classroomDetail.photoUrl"
+                          >
+                            <div slot="error" class="image-slot">暂无照片</div>
+                          </el-image>
+                        </el-col>
+                        <el-col :span="12">
+                          <el-descriptions :column="1" border>
+                            <el-descriptions-item label="教室编号">{{ classroomDetail.classroomCode }}</el-descriptions-item>
+                            <el-descriptions-item label="教室名称">{{ classroomDetail.classroomName }}</el-descriptions-item>
+                            <el-descriptions-item label="楼栋">{{
+                                classroomDetail.building
+                              }}
+                            </el-descriptions-item>
+                            <el-descriptions-item label="楼层">{{ classroomDetail.floor }}</el-descriptions-item>
+                            <el-descriptions-item label="容量">{{ classroomDetail.capacity }} 人</el-descriptions-item>
+                            <el-descriptions-item label="用途">{{ classroomDetail.type }}</el-descriptions-item>
+                            <el-descriptions-item label="状态">
+                              <el-tag :type="classroomDetail.status">{{ classroomDetail.status }}</el-tag>
+                            </el-descriptions-item>
+                            <el-descriptions-item label="备注">{{ classroomDetail.remark || '无' }}</el-descriptions-item>
+                          </el-descriptions>
+                        </el-col>
+                      </el-row>
+
+                      <el-divider>教室模型</el-divider>
+                      <div class="sketchfab-embed-wrapper">
+                        <iframe title="VR ClassRoom April 2021" frameborder="0" allowfullscreen mozallowfullscreen="true"
+                                webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking
+                                execution-while-out-of-viewport execution-while-not-rendered web-share width="100%" height="700px"
+                                src="https://sketchfab.com/models/6256d3314d5a4bd081b35d1ddc86fcd6/embed?autostart=1&annotations_visible=1&transparent=1&ui_hint=0"></iframe>
+                      </div>
+                    </div>
+                  </el-card>
+                </div>
       </el-dialog>
     </el-card>
   </div>
@@ -271,6 +327,7 @@ import {
   updateClassroom,
   deleteClassroom,
   deleteClassroomBatch,
+  getClassroomDetail,
 } from "@/apis/classroom";
 import {getAllBuilding} from "@/apis/building"; // 假设有一个获取所有楼栋的接口
 
@@ -278,6 +335,7 @@ export default {
   data() {
     return {
       addClassroomDialog: false,
+      classroomDetailDialog: false,
       classroomList: [],
       pageNum: 1,
       pageSize: 10,
@@ -345,6 +403,7 @@ export default {
       },
       editClassroom: {},
       editClassroomDialog: false,
+      classroomDetail: {},
     };
   },
 
@@ -353,6 +412,15 @@ export default {
     this.getAllBuilding();
   },
   methods: {
+    handleDetail(column) {
+      this.classroomDetail = column;
+      this.classroomDetailDialog = true;
+      // getClassroomDetail({id: column.id}).then((res) => {
+      //   if (res.data.code === 200) {
+      //     this.classroomDetail = res.data.data;
+      //   }
+      // })
+    },
     resetForm() {
       this.$refs.form.resetFields();
       this.addClassroomDialog = false;
@@ -513,3 +581,17 @@ export default {
   },
 };
 </script>
+<style>
+.classroom-detail {
+  padding: 20px;
+}
+
+.image-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 14px;
+}
+</style>

@@ -1,40 +1,44 @@
 <template>
   <div class="app-container">
     <el-card>
-      <!-- 查询条件 -->
-      <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px">
-        <el-input v-model="filters.deviceCode" placeholder="设备编号" style="width: 150px;" size="small"/>
-        <el-input v-model="filters.deviceName" placeholder="设备名称" style="width: 150px;" size="small"/>
-        <el-input v-model="filters.type" placeholder="设备类型" style="width: 150px;" size="small"/>
-        <el-input v-model="filters.manufacturer" placeholder="制造商" style="width: 150px;" size="small"/>
-        <el-date-picker
-            v-model="filters.purchaseDate"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="购入开始日期"
-            end-placeholder="购入结束日期"
-            value-format="yyyy-MM-dd"
-            :picker-options="pickerOptions"
-            :clearable="false"
-            size="small"
-            style="width: 240px;"
-        />
-        <el-select v-model:size="filters.bindingStatus" placeholder="绑定状态" style="width: 120px;" size="small">
-          <el-option label="已绑定" value="已绑定"/>
-          <el-option label="未绑定" value="未绑定"/>
-        </el-select>
-        <el-select v-model="filters.status" placeholder="状态" style="width: 120px;" size="small">
-          <el-option label="正常" value="正常"/>
-          <el-option label="损坏" value="损坏"/>
-          <el-option label="维修中" value="维修中"/>
-          <el-option label="报废" value="报废"/>
-        </el-select>
-        <div>
-          <el-button type="primary" icon="el-icon-search" size="small" @click="handleSearch">搜索</el-button>
-          <el-button icon="el-icon-refresh" size="small" @click="handleReset">重置</el-button>
+      <div style="display: flex; justify-content: space-between;">
+        <!-- 查询条件 -->
+        <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px">
+          <el-input v-model="filters.deviceCode" placeholder="设备编号" style="width: 150px;" size="small"/>
+          <el-input v-model="filters.deviceName" placeholder="设备名称" style="width: 150px;" size="small"/>
+          <el-input v-model="filters.type" placeholder="设备类型" style="width: 150px;" size="small"/>
+          <el-input v-model="filters.manufacturer" placeholder="制造商" style="width: 150px;" size="small"/>
+          <el-date-picker
+              v-model="filters.purchaseDate"
+              type="daterange"
+              range-separator="至"
+              start-placeholder="购入开始日期"
+              end-placeholder="购入结束日期"
+              value-format="yyyy-MM-dd"
+              :picker-options="pickerOptions"
+              :clearable="false"
+              size="small"
+              style="width: 240px;"
+          />
+          <el-select v-model:size="filters.bindingStatus" placeholder="绑定状态" style="width: 120px;" size="small">
+            <el-option label="已绑定" value="已绑定"/>
+            <el-option label="未绑定" value="未绑定"/>
+          </el-select>
+          <el-select v-model="filters.status" placeholder="状态" style="width: 120px;" size="small">
+            <el-option label="正常" value="正常"/>
+            <el-option label="损坏" value="损坏"/>
+            <el-option label="维修中" value="维修中"/>
+            <el-option label="报废" value="报废"/>
+          </el-select>
+          <div>
+            <el-button type="primary" icon="el-icon-search" size="small" @click="handleSearch">搜索</el-button>
+            <el-button icon="el-icon-refresh" size="small" @click="handleReset">重置</el-button>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end;flex-wrap: wrap;margin-bottom: 20px">
+          <el-button type="danger" size="small" @click="batchDelete">批量删除</el-button>
         </div>
       </div>
-
       <!-- 表格 -->
       <el-table
           :data="deviceList"
@@ -43,7 +47,10 @@
           :height="520"
           :default-sort="{prop: 'id', order: 'ascending'}"
           @sort-change="sortChange"
+          @select="handleSelect"
+          @select-all="handleSelectAll"
       >
+        <el-table-column type="selection" width="55"/>
         <el-table-column prop="deviceCode" label="设备编号" width="150"/>
         <el-table-column prop="deviceName" label="设备名称"/>
         <el-table-column prop="type" label="设备类型" width="120"/>
@@ -64,7 +71,7 @@
         <el-table-column prop="status" label="状态" width="100">
           <template slot-scope="scope">
             <el-tag @click="updateDeviceStatus(scope.row)"
-                :type="scope.row.status === '正常' ? 'success' :
+                    :type="scope.row.status === '正常' ? 'success' :
                       scope.row.status === '维修中' ? 'warning' :
                       scope.row.status === '损坏' ? 'danger' : 'info'"
             >
@@ -120,16 +127,10 @@
         <el-form-item label="保修到期" prop="warrantyUntil">
           <el-date-picker v-model="editForm.warrantyUntil" type="date" placeholder="选择日期" style="width: 100%;"/>
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="editForm.status" placeholder="请选择">
-            <el-option label="正常" value="正常"/>
-            <el-option label="损坏" value="损坏"/>
-            <el-option label="维修中" value="维修中"/>
-            <el-option label="报废" value="报废"/>
-          </el-select>
-        </el-form-item>
-        <el-button type="primary" @click="submitEditForm">保存</el-button>
-        <el-button @click="editDialog = false">取消</el-button>
+        <div style="text-align: center">
+          <el-button type="primary" @click="submitEditForm">保存</el-button>
+          <el-button @click="editDialog = false">取消</el-button>
+        </div>
       </el-form>
     </el-dialog>
     <el-dialog title="绑定详情" :visible.sync="bindDetailDialog" width="500px" center>
@@ -161,7 +162,7 @@
 </template>
 
 <script>
-import {getDevicePageList, deleteDevice, editDevice, getDeviceBindTrace} from '@/apis/device';
+import {getDevicePageList, deleteDevice, editDevice, getDeviceBindTrace, updateDeviceBindStatus,deleteDeviceBatch} from '@/apis/device';
 import BindTimeline from "@/components/BindTimeline.vue";
 
 export default {
@@ -174,6 +175,7 @@ export default {
           return time.getTime() > Date.now();
         }
       },
+      selectedIds: [],
       filters: {
         deviceCode: '',
         deviceName: '',
@@ -191,7 +193,7 @@ export default {
       pageSize: 10,
       editDialog: false,
       bindDetailDialog: false,
-      editStatusDialog:false,
+      editStatusDialog: false,
       editForm: {
         id: '',
         deviceCode: '',
@@ -206,7 +208,6 @@ export default {
       editRules: {
         deviceName: [{required: true, message: '请输入设备名称', trigger: 'blur'}],
         type: [{required: true, message: '请输入设备类型', trigger: 'blur'}],
-        status: [{required: true, message: '请选择设备状态', trigger: 'change'}]
       },
       deviceData: {},
       editStatusForm: {
@@ -221,15 +222,60 @@ export default {
     this.getDeviceList();
   },
   methods: {
-    updateDeviceStatus(column){
+    handleSelect(selection) {
+      console.log(selection);
+      this.selectedIds = selection.map((item) => item.id);
+    },
+    handleSelectAll(selection) {
+      if (selection.length === this.classroomList.length) {
+        this.selectedIds = this.classroomList.map((item) => item.id);
+      } else {
+        this.selectedIds = [];
+      }
+    },
+    batchDelete() {
+      if (this.selectedIds.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择要删除的设备'
+        });
+        return;
+      }
+      this.$confirm("确认删除选中的设备吗？", "提示", {
+        type: "warning",
+      })
+          .then(() => {
+            deleteDeviceBatch({ids: this.selectedIds}).then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("删除成功");
+                this.getDeviceList();
+              } else {
+                this.$message.error(res.data.msg);
+              }
+            });
+          })
+          .catch(() => {
+          });
+    },
+    updateDeviceStatus(column) {
       this.editStatusForm.id = column.id;
       this.editStatusForm.status = column.status;
       this.editStatusForm.deviceCode = column.deviceCode;
-      this.editStatusForm.deviceName=column.deviceName;
+      this.editStatusForm.deviceName = column.deviceName;
       this.editStatusDialog = true;
     },
-    submitEditStatusForm(){
-      //TODO
+    submitEditStatusForm() {
+      updateDeviceBindStatus(this.editStatusForm)
+          .then(res => {
+            if (res.data.code === 200) {
+              this.$message({
+                type: 'success',
+                message: '修改成功'
+              });
+              this.editStatusDialog = false;
+              this.getDeviceList();
+            }
+          });
     },
     handleBindDetail(column) {
       getDeviceBindTrace({deviceId: column.id}).then(res => {
