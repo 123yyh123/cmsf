@@ -35,7 +35,7 @@
             <el-button icon="el-icon-refresh" size="small" @click="handleReset">重置</el-button>
           </div>
         </div>
-        <div style="display: flex; justify-content: flex-end;flex-wrap: wrap;margin-bottom: 20px">
+        <div style="margin-bottom: 20px">
           <el-button type="danger" size="small" @click="batchDelete">批量删除</el-button>
         </div>
       </div>
@@ -81,10 +81,13 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right">
           <template slot-scope="scope">
-            <el-button size="mini" type="text" @click="handleBindDetail(scope.row)" style="color: #409eff">绑定详情
-            </el-button>
-            <el-button size="mini" type="text" @click="handleEdit(scope.row)" style="color: #f4b03e">编辑</el-button>
-            <el-button size="mini" type="text" @click="handleDelete(scope.row)" style="color: #f56c6c">删除</el-button>
+            <div style="text-align: center">
+              <el-button size="mini" type="text" @click="handleBindDetail(scope.row)" style="color: #409eff">绑定详情
+              </el-button>
+              <el-button size="mini" type="text" @click="handleEdit(scope.row)" style="color: #f4b03e">编辑</el-button>
+              <el-button size="mini" type="text" @click="handleDelete(scope.row)" style="color: #f56c6c">删除
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -162,7 +165,14 @@
 </template>
 
 <script>
-import {getDevicePageList, deleteDevice, editDevice, getDeviceBindTrace, updateDeviceBindStatus,deleteDeviceBatch} from '@/apis/device';
+import {
+  getDevicePageList,
+  deleteDevice,
+  editDevice,
+  getDeviceBindTrace,
+  updateDeviceBindStatus,
+  deleteDeviceBatch
+} from '@/apis/device';
 import BindTimeline from "@/components/BindTimeline.vue";
 
 export default {

@@ -37,6 +37,10 @@ export const unbindClassroomBindDevice = (params) => {
   return put(baseUrl+'/unbindDevice', params)
 }
 
+export const bindClassroomBindDevice = (params) => {
+  return put(baseUrl+'/bindDevice', params)
+}
+
 export const getClassroomDetail = (params) => {
   return get(baseUrl+'/getDetail', params)
 }

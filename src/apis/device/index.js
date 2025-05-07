@@ -22,6 +22,10 @@ export const updateDeviceBindStatus = (params) => {
     return put(baseUrl + '/deviceBindStatus/update', params)
 }
 
-export const deleteDeviceBatch= (params) => {
+export const deleteDeviceBatch = (params) => {
     return del(baseUrl + '/deleteBatch', params)
+}
+
+export const getDeviceByCodeOrName = (params) => {
+    return get(baseUrl + '/getByCodeOrName', params)
 }
