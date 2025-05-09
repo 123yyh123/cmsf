@@ -23,7 +23,6 @@
                 :value="building.id"
             ></el-option>
           </el-select>
-          <!--        状态 空闲/使用中/预约中/维修中-->
           <el-select
               placeholder="选择状态"
               style="width: 120px; "
@@ -115,7 +114,7 @@
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <el-tag
-                :type="scope.row.status === '空闲' ? 'success' : scope.row.status === '使用中' ? 'warning' : scope.row.status === '预约中' ? 'info' : 'danger'"
+                :type="scope.row.status === '正常' ? 'success' : 'danger'"
             >{{ scope.row.status }}
             </el-tag>
           </template>
@@ -293,7 +292,7 @@
                     <el-descriptions-item label="用途">{{ classroomDetail.type }}</el-descriptions-item>
                     <el-descriptions-item label="状态">
                       <el-tag
-                          :type="classroomDetail.status === '空闲'? 'success' : classroomDetail.status === '使用中' ? 'warning' : classroomDetail.status === '预约中' ? 'info' : 'danger'"
+                          :type="classroomDetail.status === '正常'? 'success' : 'danger'"
                       >{{ classroomDetail.status }}
                       </el-tag>
                     </el-descriptions-item>
@@ -433,9 +432,7 @@ export default {
       },
       buildingList: [],
       statusList: [
-        {label: "空闲", value: "空闲"},
-        {label: "使用中", value: "使用中"},
-        {label: "预约中", value: "预约中"},
+        {label: "正常", value: "正常"},
         {label: "维修中", value: "维修中"},
       ],
       // 自习，教学，会议，考试

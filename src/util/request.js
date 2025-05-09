@@ -9,7 +9,10 @@ export const get = (url, params) => {
         method: 'get',
         baseURL: baseUrl,
         url,
-        params
+        params,
+        paramsSerializer: (params) => {
+            return qs.stringify(params, {arrayFormat: 'repeat'});
+        },
     })
 }
 // post请求
