@@ -44,3 +44,15 @@ export const bindClassroomBindDevice = (params) => {
 export const getClassroomDetail = (params) => {
   return get(baseUrl+'/getDetail', params)
 }
+
+export const getTimeSlotList = (params) => {
+  return get(baseUrl+'/getTimeSlot', params)
+}
+
+export const getSchedule = (params) => {
+  return get(baseUrl+'/schedule', params)
+}
+
+export const getScheduleDetail = (params) => {
+  return get(baseUrl+'/schedule/detail', params)
+}

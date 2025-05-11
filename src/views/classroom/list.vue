@@ -1,7 +1,8 @@
 <template>
-  <div class="app-container">
-    <el-card>
-      <div style="display: flex; justify-content: space-between">
+  <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
+    <el-card style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
+      <!-- 查询条件 -->
+      <div style="display: flex;margin-bottom: 20px;gap: 15px 20px;flex-shrink: 0;justify-content: space-between">
         <div style="display: flex;flex-wrap: wrap;gap: 15px 20px">
           <el-input
               placeholder="请输入教室名称"
@@ -68,7 +69,7 @@
             >
           </div>
         </div>
-        <div>
+        <div style="gap: 15px 20px;display: flex;flex-wrap: wrap;justify-content: flex-end;">
           <el-button
               type="danger"
               icon="el-icon-delete"
@@ -90,7 +91,6 @@
       <el-table
           :data="classroomList"
           style="width: 100%; margin-top: 20px"
-          height="520"
           border
           @select="handleSelect"
           @select-all="handleSelectAll"
@@ -735,6 +735,9 @@ export default {
 };
 </script>
 <style>
+.con::-webkit-scrollbar {
+  display: none;
+}
 .classroom-detail {
   padding: 20px;
 }

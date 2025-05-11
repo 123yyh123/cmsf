@@ -2,7 +2,7 @@
   <div class="app-wrapper">
     <el-container>
       <!-- 左侧侧边栏 -->
-      <Sidebar :isCollapse="isCollapse" />
+      <Sidebar :isCollapse="isCollapse"/>
       <el-container>
         <!-- 顶部导航栏 -->
         <el-header class="header">
@@ -11,20 +11,24 @@
             <div style="width: 20px"/>
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item
-                v-for="(item, index) in $route.matched"
-                :key="index"
-                >{{ item.meta.title }}</el-breadcrumb-item
+                  v-for="(item, index) in $route.matched"
+                  :key="index"
+              >{{ item.meta.title }}
+              </el-breadcrumb-item
               >
             </el-breadcrumb>
           </div>
           <div class="header-right">
+            <el-avatar shape="circle" fit="contain" :size="30"
+                       src="https://xiaofanshu.oss-cn-hangzhou.aliyuncs.com/2023/12/23/%E5%A4%B4%E5%83%8F/OIP%20%281%29.jpg"></el-avatar>
             <el-dropdown>
               <span class="el-dropdown-link">
                 {{ userName }}<i class="el-icon-arrow-down el-icon--right"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click.native="logout"
-                  >退出登录</el-dropdown-item
+                >退出登录
+                </el-dropdown-item
                 >
               </el-dropdown-menu>
             </el-dropdown>
@@ -33,7 +37,7 @@
 
         <!-- 右侧主体 -->
         <el-main class="main" style="height:0;flex-grow:1;">
-          <router-view />
+          <router-view/>
         </el-main>
       </el-container>
     </el-container>
@@ -42,10 +46,10 @@
 
 <script>
 import Sidebar from "@/components/sidebar/SidebarIndex.vue";
-import { getUserName } from "@/util/jwt";
+import {getUserName} from "@/util/jwt";
 
 export default {
-  components: { Sidebar },
+  components: {Sidebar},
   data() {
     return {
       isCollapse: false,
@@ -100,6 +104,9 @@ export default {
 
 .header-right {
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 0 10px;
 }
 
 .main {
@@ -115,11 +122,12 @@ export default {
   transition: transform 0.3s ease; /* 控制过渡动画的时长和类型 */
 }
 
-.sidebar-transition-enter, .sidebar-transition-leave-to /* .sidebar-transition-leave-active in <2.1.8 */ {
+.sidebar-transition-enter, .sidebar-transition-leave-to /* .sidebar-transition-leave-active in <2.1.8 */
+{
   transform: translateX(-100%); /* 假设侧边栏从左侧进入，折叠时移出 */
 }
 
-.el-main::-webkit-scrollbar{
+.el-main::-webkit-scrollbar {
   display: none;
 }
 </style>

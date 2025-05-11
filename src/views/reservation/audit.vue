@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
-    <el-card>
+  <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
+    <el-card style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
       <!-- 查询条件 -->
-      <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap;">
+      <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px;flex-shrink: 0;">
         <el-input v-model="filters.realName" placeholder="申请人" style="width: 150px; margin-right: 20px;"
                   size="small"/>
         <el-select v-model="filters.role" placeholder="申请人角色" style="width: 150px; margin-right: 20px;" size="small">
@@ -33,7 +33,7 @@
       </div>
 
       <!-- 审核列表 -->
-      <el-table :data="reservationList" border style="width: 100%;" :height="520"
+      <el-table :data="reservationList" border style="width: 100%;"
                 :default-sort="{prop: 'id', order: 'ascending'}" @sort-change="sortChange">
         <el-table-column prop="realName" label="申请人" width="100"/>
         <el-table-column prop="role" label="申请人角色" width="100"/>
@@ -50,14 +50,12 @@
         <el-table-column label="操作" width="180" fixed="right">
           <template slot-scope="scope">
             <el-button
-                v-if="scope.row.status === 'pending'"
                 size="mini"
                 type="success"
                 @click="handleAudit(scope.row, 'approved')"
             >通过
             </el-button>
             <el-button
-                v-if="scope.row.status === 'pending'"
                 size="mini"
                 type="danger"
                 @click="handleAudit(scope.row, 'rejected')"
@@ -85,6 +83,7 @@
 
 <script>
 import {getReservationPageList, reviewReservation} from '@/apis/reservation';
+import {toLine} from "@/util/strUtils";
 
 export default {
   data() {
@@ -100,6 +99,7 @@ export default {
       total: 0,
       pageNum: 1,
       pageSize: 10,
+      isFirstLoad: true,
     };
   },
   created() {
@@ -109,7 +109,7 @@ export default {
     sortChange(column) {
       console.log(column);
       if (column.order !== 'null') {
-        const orderByField = column.prop;
+        const orderByField = toLine(column.prop);
         const orderByType = column.order === 'ascending' ? 'asc' : 'desc';
         this.filters.orderByField = orderByField;
         this.filters.orderByType = orderByType;
@@ -133,6 +133,15 @@ export default {
         if (res.data.code === 200) {
           this.reservationList = res.data.data.list;
           this.total = res.data.data.total;
+          if (this.isFirstLoad && this.total > 0) {
+            this.$message({
+              showClose: true,
+              type: 'warning',
+              message: "当前您待审核的预约共有"+this.total+"条，请及时处理！",
+              duration: 5000
+            });
+            this.isFirstLoad = false;
+          }
         } else {
           this.$message.error(res.data.msg || '加载失败');
         }
@@ -180,4 +189,7 @@ export default {
 </script>
 
 <style scoped>
+.con::-webkit-scrollbar {
+  display: none;
+}
 </style>

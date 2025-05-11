@@ -1,7 +1,8 @@
 <template>
-  <div class="app-container">
-    <el-card>
-      <div style="display: flex; justify-content: space-between;">
+  <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
+    <el-card style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
+      <!-- 查询条件 -->
+      <div style="display: flex;margin-bottom: 20px;gap: 15px 20px;flex-shrink: 0;justify-content: space-between">
         <!-- 查询条件 -->
         <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px">
           <el-input v-model="filters.deviceCode" placeholder="设备编号" style="width: 150px;" size="small"/>
@@ -44,7 +45,6 @@
           :data="deviceList"
           border
           style="width: 100%;"
-          :height="520"
           :default-sort="{prop: 'id', order: 'ascending'}"
           @sort-change="sortChange"
           @select="handleSelect"
@@ -70,7 +70,7 @@
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
           <template slot-scope="scope">
-            <el-tag @click="updateDeviceStatus(scope.row)"
+            <el-tag @click="updateDeviceStatus(scope.row)" class="bindStatus"
                     :type="scope.row.status === '正常' ? 'success' :
                       scope.row.status === '维修中' ? 'warning' :
                       scope.row.status === '损坏' ? 'danger' : 'info'"
@@ -401,4 +401,10 @@ export default {
 </script>
 
 <style scoped>
+.bindStatus:hover{
+  cursor: pointer;
+}
+.con::-webkit-scrollbar {
+  display: none;
+}
 </style>

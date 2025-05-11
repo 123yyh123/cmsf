@@ -1,0 +1,11 @@
+import {get, post, put, del} from '@/util/request.js'
+
+const baseUrl = '/common'
+
+export const getIndexInfo = () => {
+    return get(baseUrl + '/getIndexInfo')
+}
+
+export const getRecentlyApply = () => {
+    return get(baseUrl + '/getRecently/applyReservation')
+}

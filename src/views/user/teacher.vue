@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
-    <el-card>
+  <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
+    <el-card style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
       <!-- 查询条件 -->
-      <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px">
+      <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px;flex-shrink: 0;">
         <el-input v-model="filters.username" placeholder="用户名" style="width: 150px; "
                   size="small"/>
         <el-input v-model="filters.teacherNo" placeholder="教工号" style="width: 150px; "
@@ -25,7 +25,6 @@
           :data="teacherList"
           border
           style="width: 100%;"
-          :height="520"
           :default-sort="{prop: 'id', order: 'ascending'}"
           @sort-change="sortChange"
       >
@@ -266,4 +265,7 @@ export default {
 </script>
 
 <style scoped>
+.con::-webkit-scrollbar {
+  display: none;
+}
 </style>

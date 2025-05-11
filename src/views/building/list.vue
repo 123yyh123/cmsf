@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container">
-    <el-card>
+  <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
+    <el-card style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
       <!-- 表格 -->
-      <el-table :data="buildingList" border style="width: 100%; margin-top: 20px;" height="500">
+      <el-table :data="buildingList" border style="width: 100%; margin-top: 20px;">
         <el-table-column prop="buildingNo" label="楼栋编号"/>
         <el-table-column prop="buildingName" label="楼栋名称"/>
         <el-table-column label="备注">
@@ -72,4 +72,7 @@ export default {
 </script>
 
 <style scoped>
+.con::-webkit-scrollbar {
+  display: none;
+}
 </style>
