@@ -10,3 +10,7 @@ export async function getTimeSlot() {
     timeSlot = res.data.data
     return timeSlot
 }
+
+export const padZero = (n) => {
+    return n < 10 ? '0' + n : n;
+}

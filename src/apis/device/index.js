@@ -29,3 +29,11 @@ export const deleteDeviceBatch = (params) => {
 export const getDeviceByCodeOrName = (params) => {
     return get(baseUrl + '/getByCodeOrName', params)
 }
+
+export const getDeviceRepairPage = (params) => {
+    return get(baseUrl + '/repair/listByPage', params)
+}
+
+export const updateDeviceRepairStatus = (params) => {
+    return put(baseUrl + '/repair/updateStatus', params)
+}

@@ -15,5 +15,9 @@ export const updateAnnouncement = (params) => {
 }
 
 export const deleteAnnouncement = (params) => {
-  return del(baseUrl+'/delete', params)
+  return del(baseUrl + '/delete', params)
+}
+
+export const getRecentlyPublic = (params) => {
+  return get(baseUrl + '/getRecentlyPublic', params)
 }

@@ -25,3 +25,15 @@ export const deleteStudent = (params) => {
 export const editStudent = (params) => {
   return put(baseUrl+'/editStudent', params)
 }
+
+export const getUserInfo = (params) => {
+  return get(baseUrl+'/getUserInfo', params)
+}
+
+export const updateUserInfo = (params) => {
+  return put(baseUrl+'/updateUserInfo', params)
+}
+
+export const updatePassword = (params) => {
+  return put(baseUrl+'/updatePassword', params)
+}

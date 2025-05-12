@@ -5,7 +5,7 @@
       <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px;flex-shrink: 0;">
         <el-input v-model="filters.realName" placeholder="申请人" style="width: 150px; margin-right: 20px;"
                   size="small"/>
-        <el-select v-model="filters.role" placeholder="申请人角色" style="width: 150px; margin-right: 20px;" size="small">
+        <el-select v-if="getUserRole() === 'admin'" v-model="filters.role" placeholder="申请人角色" style="width: 150px; margin-right: 20px;" size="small">
           <el-option label="学生" value="student"/>
           <el-option label="教师" value="teacher"/>
         </el-select>
@@ -52,7 +52,7 @@
             <el-button
                 size="mini"
                 type="success"
-                @click="handleAudit(scope.row, 'approved')"
+                @click="handleAudit(scope.row, getUserRole()==='admin'?'approved':'counselor_approved')"
             >通过
             </el-button>
             <el-button
@@ -84,6 +84,7 @@
 <script>
 import {getReservationPageList, reviewReservation} from '@/apis/reservation';
 import {toLine} from "@/util/strUtils";
+import {getUserRole} from "@/util/jwt";
 
 export default {
   data() {
@@ -106,6 +107,7 @@ export default {
     this.fetchList();
   },
   methods: {
+    getUserRole,
     sortChange(column) {
       console.log(column);
       if (column.order !== 'null') {

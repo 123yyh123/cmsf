@@ -4,21 +4,20 @@
       <h2 class="title">欢迎登录</h2>
       <el-form :model="loginForm" :rules="rules" ref="loginForm" label-width="80px">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="请输入用户名" />
+          <el-input v-model="loginForm.username" prefix-icon="el-icon-user" placeholder="请输入用户名"/>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
-            v-model="loginForm.password"
-            prefix-icon="el-icon-lock"
-            placeholder="请输入密码"
-            show-password
+              v-model="loginForm.password"
+              prefix-icon="el-icon-lock"
+              placeholder="请输入密码"
+              show-password
           />
         </el-form-item>
         <el-form-item label="角色" prop="role">
           <el-select v-model="loginForm.role" placeholder="请选择角色">
-            <el-option label="管理员" value="admin" />
-            <el-option label="老师" value="teacher" />
-            <el-option label="学生" value="student" />
+            <el-option label="管理员" value="admin"/>
+            <el-option label="教师" value="teacher"/>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -30,7 +29,8 @@
 </template>
 
 <script>
-import { login } from '@/apis/auth'
+import {login} from '@/apis/auth'
+
 export default {
   data() {
     return {
@@ -41,13 +41,13 @@ export default {
       },
       rules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: 'blur' }
+          {required: true, message: '请输入用户名', trigger: 'blur'}
         ],
         password: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
+          {required: true, message: '请输入密码', trigger: 'blur'}
         ],
         role: [
-          { required: true, message: '请选择角色', trigger: 'change' }
+          {required: true, message: '请选择角色', trigger: 'change'}
         ]
       }
     }
@@ -60,9 +60,12 @@ export default {
             if (res.data.code === 200) {
               this.$message.success('登录成功')
               // 将token存入localStorage
-              localStorage.setItem('token', res.data.data)
+              localStorage.setItem('token', res.data.data.token.toString())
+              localStorage.setItem('avatar', res.data.data.avatar === null ? '' : res.data.data.avatar)
+              localStorage.setItem('counselor', res.data.data.counselor === null ? false : res.data.data.counselor)
+              localStorage.setItem('username', res.data.data.username === null ? '' : res.data.data.username)
               // 跳转到首页
-              this.$router.push({ path: '/' })
+              this.$router.push({path: '/'})
             } else {
               this.$message.error(res.data.msg)
             }

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Layout from '@/layout/LayoutIndex.vue'
+import {getUserRole} from "@/util/jwt";
 
 Vue.use(VueRouter)
 
@@ -18,11 +19,17 @@ export const constantRoutes = [
     {
         path: '/',
         component: Layout,
-        redirect: '/dashboard',
+        redirect: getUserRole() === 'admin' ? '/dashboard' : '/index',
         children: [{
-            path: 'dashboard',
-            name: 'Dashboard',
-            component: () => import('@/views/dashboard/index'),
+            path: getUserRole() === 'admin' ? 'dashboard' : 'index',
+            name: getUserRole() === 'admin' ? 'Dashboard' : 'Index',
+            component: () =>{
+                if(getUserRole() === 'admin'){
+                    return import('@/views/dashboard/index.vue')
+                }else{
+                    return import('@/views/dashboard/notice.vue')
+                }
+            },
             meta: {title: '首页', icon: 'dashboard'}
         }]
     }
@@ -35,8 +42,18 @@ export const asyncRoutes = [
         meta: {
             title: '首页',
             icon: 'el-icon-s-home',
-            roles: ['admin', 'user']
+            roles: ['admin']
         }
+    },
+    // 公告展示
+    {
+        path: '/index',
+        name: 'Index',
+        meta: {
+            title: '公告展示',
+            icon: 'el-icon-s-home',
+            roles: ['teacher']
+        },
     },
     // 教室管理
     {
@@ -118,6 +135,12 @@ export const asyncRoutes = [
                 name: 'MyReservation',
                 component: () => import('@/views/reservation/my'),
                 meta: {title: '我的预约', roles: ['teacher', 'student']}
+            },
+            {
+                path: 'add',
+                name: 'AddReservation',
+                component: () => import('@/views/reservation/add'),
+                meta: {title: '我要预约', roles: ['teacher']}
             }
         ]
     },
@@ -185,27 +208,6 @@ export const asyncRoutes = [
         ]
     },
 
-    // 系统设置
-    {
-        path: '/system',
-        component: Layout,
-        meta: {title: '系统设置', icon: 'el-icon-setting', roles: ['admin']},
-        children: [
-            {
-                path: 'config',
-                name: 'SystemConfig',
-                component: () => import('@/views/system/config'),
-                meta: {title: '基础配置', roles: ['admin']}
-            },
-            {
-                path: 'log',
-                name: 'SystemLog',
-                component: () => import('@/views/system/log'),
-                meta: {title: '日志管理', roles: ['admin']}
-            }
-        ]
-    },
-
     // 个人中心
     {
         path: '/profile',
@@ -216,7 +218,7 @@ export const asyncRoutes = [
                 path: 'edit',
                 name: 'EditProfile',
                 component: () => import('@/views/profile/edit'),
-                meta: {title: '修改密码', roles: ['admin', 'teacher', 'student']}
+                meta: {title: '编辑信息', roles: ['admin', 'teacher', 'student']}
             }
         ]
     },

@@ -99,12 +99,6 @@
         <el-form-item label="学院" prop="department" required>
           <el-input v-model="editForm.department"/>
         </el-form-item>
-        <el-form-item label="手机号" prop="phone" required>
-          <el-input v-model="editForm.phone"/>
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email" required>
-          <el-input v-model="editForm.email"/>
-        </el-form-item>
         <el-form-item label="状态" prop="status" required>
           <el-select v-model="editForm.status" placeholder="请选择">
             <el-option label="启用" :value="1"/>
@@ -147,8 +141,6 @@ export default {
         className: '',
         major: '',
         department: '',
-        phone: '',
-        email: '',
         status: ''
       },
       editRules: {
@@ -160,18 +152,6 @@ export default {
         className: [{required: true, message: '请输入班级', trigger: 'blur'}],
         major: [{required: true, message: '请输入专业', trigger: 'blur'}],
         department: [{required: true, message: '请输入学院', trigger: 'blur'}],
-        phone: [
-          {required: true, message: '请输入手机号', trigger: 'blur'},
-          {pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur'}
-        ],
-        email: [
-          {required: true, message: '请输入邮箱', trigger: 'blur'},
-          {
-            pattern: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
-            message: '请输入正确的邮箱地址',
-            trigger: 'blur'
-          }
-        ]
       },
       studentList: [],
       pageNum: 1,

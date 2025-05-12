@@ -4,3 +4,7 @@ import { get, post, put, del } from '@/util/request.js'
 export const login = (user) => {
   return post('/auth/login', user)
 }
+
+export const logout = () => {
+  return post('/auth/logout')
+}

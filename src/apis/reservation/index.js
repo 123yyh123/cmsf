@@ -17,3 +17,11 @@ export const reviewReservation = (params) => {
 export const getReservationDetail = (params) => {
     return get(baseUrl + '/record/detail', params)
 }
+
+export const getSelfReservation = (params) => {
+    return get(baseUrl + '/record/my', params)
+}
+
+export const addReservation = (params) => {
+    return post(baseUrl + '/add', params)
+}

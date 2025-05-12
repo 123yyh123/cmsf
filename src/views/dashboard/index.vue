@@ -1,5 +1,10 @@
 <template>
-  <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
+  <div class="app-container" style="display: flex; flex-direction: column;overflow-y: auto">
+    <div
+        style="background: #ffffff; padding: 0 20px 0 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;display: flex;margin-bottom: 20px;align-items: center;height: 40px">
+      <el-icon class="el-icon-s-promotion" style="font-size: 20px; margin-right: 10px;"></el-icon>
+      <HorizontalScroll v-if="announcementList[0].text" :text="announcementList[0].text" :speed="40"/>
+    </div>
     <div style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
       <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-evenly; gap: 20px;">
         <div v-if="stats"
@@ -73,7 +78,9 @@
                 border-radius: 10px;">
                   <div style="font-weight: bold; color: #333; font-size: 15px;">{{ item.applyTime }}</div>
                   <div style="margin-top: 4px; color: #666; font-size: 14px;">
-                    <span style="color: #409EFF; font-weight: 500;">{{item.applicantRole}}{{ item.applicantName }}</span>
+                    <span style="color: #409EFF; font-weight: 500;">{{ item.applicantRole }}{{
+                        item.applicantName
+                      }}</span>
                     申请预约
                     <span style="color: #67C23A; font-weight: 500;">{{ item.classroomCode }}</span>
                     教室
@@ -85,12 +92,53 @@
 
         </div>
         <div style="margin-top: 20px;display: flex;gap: 20px">
+          <div
+              style="background: #fff; border-radius: 10px; height: 300px; flex: 1; padding: 10px; display: flex; flex-direction: column;">
+            <div style="display:flex;align-items: baseline;justify-content: space-between;">
+              <div style="display: flex;gap:0 10px;text-align: center;align-items: baseline">
+                <div style="margin-bottom: 10px; font-size: 16px;">最近公告</div>
+              </div>
+            </div>
+            <div style="flex: 1; overflow-y: auto;" class="timeline-container">
+              <div v-for="(item, index) in announcementList" :key="index" style="display: flex; margin-bottom: 20px;">
+                <!-- 时间点图标 -->
+                <div
+                    style="width: 16px; height: 16px; background-color: #409EFF; border-radius: 50%; margin-right: 16px; margin-top: 6px;"></div>
+                <!-- 内容卡片 -->
+                <div
+                    style="flex: 1; border-radius: 10px;padding: 16px;display: flex;flex-direction: column;gap: 10px;background-image: radial-gradient(73% 147%, #EADFDF 59%, #ECE2DF 100%), radial-gradient(91% 146%, rgba(255,255,255,0.50) 47%, rgba(0,0,0,0.50) 100%);
+ background-blend-mode: screen;margin-right: 10px">
+                  <!-- 标题和置顶标志 -->
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3 style="margin: 0; font-size: 16px; font-weight: bold; color: #333;">{{ item.title }}</h3>
+                    <span v-if="item.pinned" style="color: #f56c6c; font-size: 12px; font-weight: bold;">置顶</span>
+                  </div>
+                  <!-- 公告内容 -->
+                  <div style="color: #666; font-size: 14px; line-height: 1.6;">
+                    {{ item.content }}
+                  </div>
+                  <!-- 图片展示 -->
+                  <div v-if="item.coverImage" style="margin-top: 8px;">
+                    <img :src="item.coverImage" alt="封面图片" style="max-width: 100%;max-height: 100px; border-radius: 6px;"/>
+                  </div>
+                  <!-- 底部信息 -->
+                  <div
+                      style="display: flex; justify-content: space-between; font-size: 12px; color: #999; margin-top: 6px;">
+                    <span>发布人：{{ item.realName }}</span>
+                    <span>{{ item.createTime }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
           <div ref="reservationBarChart"
                style="height: 300px;flex: 1;background: #ffffff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;display: flex;padding-top: 20px"></div>
           <div ref="classroomPieChart"
                style="width: 400px; height: 300px;background: #ffffff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;display: flex;padding-top: 20px"></div>
         </div>
       </div>
+      <div style="height: 20px"/>
     </div>
   </div>
 </template>
@@ -98,37 +146,46 @@
 
 <script>
 import * as echarts from 'echarts'
-import {getIndexInfo,getRecentlyApply} from '@/apis/common'
+import {getIndexInfo, getRecentlyApply} from '@/apis/common'
+import {getRecentlyPublic} from "@/apis/announcement";
+import HorizontalScroll from "@/components/HorizontalScroll.vue";
 
 export default {
+  components: {HorizontalScroll},
   data() {
     return {
       stats: null,
-      loading: false
+      loading: false,
+      announcementList: [],
+      isOverflowing: false,
     }
   },
-  computed: {
-    overviewList() {
-      if (!this.stats) return []
-      return [
-        {title: '教室总数', value: this.stats.totalClassroom},
-        {title: '可用教室', value: this.stats.usableClassroom},
-        {title: '维修教室', value: this.stats.repairClassroom},
-        {title: '设备总数', value: this.stats.deviceTotal},
-        {title: '正常设备', value: this.stats.deviceNormal}
-      ]
-    }
-  },
-  mounted() {
-    this.loadStats()
+  created() {
+    this.loadStats();
+    this.getAnnouncementList()
   },
   methods: {
+    getAnnouncementList() {
+      this.announcementList = []
+      getRecentlyPublic({}).then(res => {
+        if (res.data.code === 200) {
+          this.announcementList = res.data.data
+          this.announcementList.forEach(item => {
+            item.text = item.title + ": " + item.content
+          })
+        } else {
+          this.$message.error('获取失败')
+        }
+      }).catch(() => {
+        this.$message.error('请求失败，请检查网络')
+      })
+    },
     refreshData() {
       this.loading = true
       getRecentlyApply().then(res => {
-        if (res.data.code === 200){
+        if (res.data.code === 200) {
           this.stats.recentlyVOS = res.data.data
-        }else {
+        } else {
           this.$message.error('获取失败')
         }
         setTimeout(() => {
@@ -138,18 +195,6 @@ export default {
         this.$message.error('请求失败，请检查网络')
         this.loading = false
       })
-    },
-    getStatusColor(status) {
-      switch (status) {
-        case '审核中':
-          return '#E6A23C';
-        case '已通过':
-          return '#67C23A';
-        case '已拒绝':
-          return '#F56C6C';
-        default:
-          return '#909399';
-      }
     },
     loadStats() {
       getIndexInfo().then(res => {
@@ -259,82 +304,6 @@ export default {
 
 
 <style scoped>
-.dashboard {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  background: #f5f7fa;
-}
-
-/* 顶部概览卡片 */
-.overview {
-  grid-column: span 2;
-  display: flex;
-  justify-content: space-between;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.overview-card {
-  flex: 1;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  text-align: center;
-}
-
-.overview-card .number {
-  font-size: 24px;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.overview-card .label {
-  font-size: 14px;
-  margin-top: 8px;
-  color: #666;
-}
-
-/* 中部图表区域 */
-.main-charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column: span 1;
-  gap: 20px;
-}
-
-.chart-card {
-  height: 300px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 10px;
-}
-
-/* 右侧栏 */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.info-card {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-
-.info-card h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.info-card ul {
-  padding-left: 16px;
-}
-
 .con::-webkit-scrollbar {
   display: none;
 }

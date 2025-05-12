@@ -66,11 +66,20 @@ export default {
   methods: {
     hasPermission(route) {
       if (route.meta && route.meta.roles) {
+        // 特殊情况：如果是预约审核页 && counselor 本地标志为 true，则放行
+        if (
+            route.name === 'ReservationAudit' &&
+            localStorage.getItem('counselor') === 'true'
+        ) {
+          return true
+        }
+
         return this.userRoles.some(role => route.meta.roles.includes(role))
       } else {
-        return true // 默认不写 roles 的路由，所有人可以看
+        return true // 默认无权限要求的路由全部放行
       }
     }
+
   }
 }
 </script>
@@ -79,11 +88,13 @@ export default {
 .el-menu-vertical-demo {
   overflow-x: hidden;
 }
+
 .sidebar-container {
   height: 100vh; /* 确保侧边栏高度100% */
   display: flex;
   flex-direction: column;
 }
+
 .sidebar {
   background-color: #ffffff;
   height: 100%; /* 确保侧边栏高度100% */
@@ -91,9 +102,11 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
 .el-menu-vertical-demo::-webkit-scrollbar {
   display: none;
 }
+
 .logo-item {
   height: 64px;
   display: flex;
@@ -118,7 +131,7 @@ export default {
   object-fit: contain;
 }
 
-.logo-text{
+.logo-text {
   font-size: 16px;
   white-space: nowrap;
 }

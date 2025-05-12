@@ -211,7 +211,9 @@ export default {
       }
     },
     del(column) {
-      this.$confirm('确定删除该公告吗？', () => {
+      this.$confirm('确定删除该公告吗？', '提示',{
+        type: 'warning'
+      }).then(() => {
         deleteAnnouncement({id: column.id}).then(res => {
           if (res.data.code === 200) {
             this.$message.success('删除成功');
@@ -219,9 +221,9 @@ export default {
           } else {
             this.$message.error(res.data.msg || '删除失败');
           }
-        }).catch(() => {
-          this.$message.error('删除失败');
         })
+      }).catch(() => {
+        this.$message.error('删除失败');
       })
     },
   }

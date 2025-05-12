@@ -20,16 +20,19 @@
           </div>
           <div class="header-right">
             <el-avatar shape="circle" fit="contain" :size="30"
-                       src="https://xiaofanshu.oss-cn-hangzhou.aliyuncs.com/2023/12/23/%E5%A4%B4%E5%83%8F/OIP%20%281%29.jpg"></el-avatar>
+                       :src="avatar"></el-avatar>
             <el-dropdown>
               <span class="el-dropdown-link">
-                {{ userName }}<i class="el-icon-arrow-down el-icon--right"></i>
+                {{ username }}<i class="el-icon-arrow-down el-icon--right"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click.native="logout"
                 >退出登录
                 </el-dropdown-item
                 >
+                <el-dropdown-item @click.native="edit"
+                >修改密码
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </div>
@@ -40,25 +43,65 @@
           <router-view/>
         </el-main>
       </el-container>
+      <el-dialog title="修改密码" :visible.sync="editPasswordDialog" width="500px" center>
+        <el-form :model="editPasswordForm" :rules="editPasswordRules" ref="editPasswordForm" label-width="80px">
+          <el-form-item label="旧密码" prop="oldPassword">
+            <el-input v-model="editPasswordForm.oldPassword" placeholder="请输入旧密码" show-password></el-input>
+          </el-form-item>
+          <el-form-item label="新密码" prop="newPassword">
+            <el-input v-model="editPasswordForm.newPassword" placeholder="请输入新密码" show-password></el-input>
+          </el-form-item>
+          <el-form-item label="确认密码" prop="confirmPassword">
+            <el-input v-model="editPasswordForm.confirmPassword" placeholder="请再次输入新密码"
+                      show-password></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="submitEditPasswordForm">提交</el-button>
+            <el-button @click="editPasswordDialog=false">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
     </el-container>
   </div>
 </template>
 
 <script>
 import Sidebar from "@/components/sidebar/SidebarIndex.vue";
-import {getUserName} from "@/util/jwt";
+import {updatePassword} from "@/apis/user";
+import {logout} from "@/apis/auth";
 
 export default {
   components: {Sidebar},
   data() {
     return {
       isCollapse: false,
+      username: "用户",
+      avatar: "https://xiaofanshu.oss-cn-hangzhou.aliyuncs.com/2023/12/23/%E5%A4%B4%E5%83%8F/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240625153028.jpg",
+      editPasswordDialog: false,
+      editPasswordForm: {
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+      },
+      editPasswordRules: {
+        oldPassword: [
+          {required: true, message: "请输入旧密码", trigger: "blur"},
+          {min: 6, max: 20, message: "长度在 6 到 20 个字符", trigger: "blur"}
+        ],
+        newPassword: [
+          {required: true, message: "请输入新密码", trigger: "blur"},
+          {min: 6, max: 20, message: "长度在 6 到 20 个字符", trigger: "blur"}
+        ],
+        confirmPassword: [
+          {required: true, message: "请输入确认密码", trigger: "blur"},
+          {min: 6, max: 20, message: "长度在 6 到 20 个字符", trigger: "blur"}
+        ]
+      }
     };
   },
-  computed: {
-    userName() {
-      return getUserName() || "用户";
-    },
+  mounted() {
+    this.username = localStorage.getItem('username') ? localStorage.getItem('username') : ''
+    this.avatar = localStorage.getItem('avatar') ? localStorage.getItem('avatar') : 'https://xiaofanshu.oss-cn-hangzhou.aliyuncs.com/2023/12/23/%E5%A4%B4%E5%83%8F/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240625153028.jpg'
   },
   methods: {
     toggleCollapse() {
@@ -66,8 +109,50 @@ export default {
     },
     logout() {
       // 清除用户信息和token
-      localStorage.removeItem("token");
-      this.$router.push("/login"); // 跳转到登录页面
+      localStorage.removeItem("avatar");
+      localStorage.removeItem("username");
+      localStorage.removeItem("counselor")
+      logout().then(res => {
+        if (res.data.code === 200) {
+          this.$message.success('退出成功')
+          localStorage.removeItem("token");
+          this.$router.push("/login"); // 跳转到登录页面
+        } else {
+          localStorage.removeItem("token");
+          this.$router.push("/login"); // 跳转到登录页面
+        }
+      }).catch(err => {
+        localStorage.removeItem("token");
+        this.$router.push("/login"); // 跳转到登录页面
+      })
+    },
+    edit() {
+      this.editPasswordForm = {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
+      this.editPasswordDialog = true;
+    },
+    submitEditPasswordForm () {
+      if (this.editPasswordForm.newPassword !== this.editPasswordForm.confirmPassword){
+        this.$message.error('两次输入的密码不一致');
+        return;
+      }
+      const param = {
+        oldPassword: this.editPasswordForm.oldPassword,
+        newPassword: this.editPasswordForm.newPassword
+      }
+      updatePassword(param).then(res => {
+        if (res.data.code === 200) {
+          this.$message.success('修改成功');
+          this.editPasswordDialog = false;
+        } else {
+          this.$message.error(res.data.msg);
+        }
+      }).catch(err => {
+        this.$message.error('修改失败');
+      })
     },
   },
 };
