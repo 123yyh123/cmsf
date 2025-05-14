@@ -10,10 +10,6 @@ export const getUserRole = () => {
     return null;
 }
 
-export const getUserName = () => {
-    return localStorage.getItem("username") === null ? null : localStorage.getItem("username");
-}
-
 export const getUserId = () => {
     const token = localStorage.getItem("token");
     if (token) {

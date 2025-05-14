@@ -17,16 +17,21 @@ export const constantRoutes = [
         hidden: true
     },
     {
+        path: '/403',
+        component: () => import('@/views/403'),
+        hidden: true
+    },
+    {
         path: '/',
         component: Layout,
         redirect: getUserRole() === 'admin' ? '/dashboard' : '/index',
         children: [{
             path: getUserRole() === 'admin' ? 'dashboard' : 'index',
             name: getUserRole() === 'admin' ? 'Dashboard' : 'Index',
-            component: () =>{
-                if(getUserRole() === 'admin'){
+            component: () => {
+                if (getUserRole() === 'admin') {
                     return import('@/views/dashboard/index.vue')
-                }else{
+                } else {
                     return import('@/views/dashboard/notice.vue')
                 }
             },
@@ -224,7 +229,7 @@ export const asyncRoutes = [
     },
 
     // 404 页面
-    {path: '*', redirect: '/404', hidden: true}
+    {path: '*', redirect: '/404', hidden: true},
 ]
 
 const router = new VueRouter({
@@ -233,20 +238,28 @@ const router = new VueRouter({
     routes: constantRoutes.concat(asyncRoutes)
 })
 
+// 路由前置守卫
 router.beforeEach((to, from, next) => {
-    if (checkCache(to.path)) {
-        next()
+    const token = localStorage.getItem('token')
+    const role = getUserRole()
+
+    if (!token) {
+        // 无 token，强制登录
+        return to.path === '/login' ? next() : next('/login')
+    }
+
+    if (to.meta && to.meta.roles) {
+        // 目标路由有限制角色
+        if (to.meta.roles.includes(role)) {
+            next()
+        } else {
+            // 当前角色不在允许访问的角色列表中
+            next('/403') // 或自定义提示页
+        }
     } else {
-        next('/login')
+        // 不限制角色的页面
+        next()
     }
 })
-
-function checkCache(path) {
-    if (path === '/login' || localStorage.getItem('token')) {
-        return true
-    } else {
-        return false
-    }
-}
 
 export default router
