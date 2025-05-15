@@ -249,8 +249,9 @@ router.beforeEach((to, from, next) => {
     }
 
     if (to.meta && to.meta.roles) {
-        // 目标路由有限制角色
-        if (to.meta.roles.includes(role)) {
+        // 目标路由有限制角色,审核预约特殊处理，允许辅导员访问
+        if (to.meta.roles.includes(role) || (to.path === '/reservation/audit' && role === 'teacher' && localStorage.getItem('counselor'))) {
+            // 当前角色在允许访问的角色列表中
             next()
         } else {
             // 当前角色不在允许访问的角色列表中

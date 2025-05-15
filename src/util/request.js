@@ -63,27 +63,23 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
     response => {
-        if (response.status === 200) {
-            if (response.data.code === 401 || response.data.code === 402 || response.data.code === 403) {
-                localStorage.clear()
-                // 清空并跳转到登录页
-                router.replace('/login').then(() => {
-                    location.reload()
-                })
-            }
-            // 如果响应头里面有refresh-token字段且不为空，将其存入localStorage，覆盖掉token
-            if (response.headers['refresh-token']) {
-                localStorage.setItem('token', response.headers['refresh-token'])
-            }
-            return response
+        const code = response.data.code
+        if (code === 401 || code === 402 || code === 403) {
+            localStorage.clear()
         }
+        // 如果响应头里面有refresh-token字段且不为空，将其存入localStorage，覆盖掉token
+        if (response.headers['refresh-token']) {
+            localStorage.setItem('token', response.headers['refresh-token'])
+        }
+        return response
     },
     error => {
         if (error.response) {
             const status = error.response.status
             if (status === 404) {
+                this.$message.error("请求的资源不存在")
                 // 跳转到自定义 404 页面
-                router.replace('/404')
+                router.push('/404')
             }
         }
         return Promise.reject(error)

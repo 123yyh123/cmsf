@@ -67,7 +67,7 @@ export default {
               // 跳转到首页
               this.$router.push({path: '/'})
             } else {
-              this.$message.error(res.data.msg)
+              this.$message.error(res.data.msg||'登录失败')
             }
           }).catch(err => {
             console.error(err)

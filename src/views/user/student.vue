@@ -238,7 +238,7 @@ export default {
             }
           }).catch(err => {
             console.error(err);
-            this.$message.error('请求失败');
+            this.$message.error(res.data.msg || '请求失败');
           });
         } else {
           this.$message.warning('请填写完整信息');

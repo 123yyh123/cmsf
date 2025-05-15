@@ -174,7 +174,7 @@ export default {
             item.text = item.title + ": " + item.content
           })
         } else {
-          this.$message.error('获取失败')
+          this.$message.error(res.data.msg || '获取公告列表失败')
         }
       }).catch(() => {
         this.$message.error('请求失败，请检查网络')
@@ -186,7 +186,7 @@ export default {
         if (res.data.code === 200) {
           this.stats.recentlyVOS = res.data.data
         } else {
-          this.$message.error('获取失败')
+          this.$message.error(res.data.msg || '获取最近预约列表失败')
         }
         setTimeout(() => {
           this.loading = false
@@ -202,7 +202,7 @@ export default {
           this.stats = res.data.data
           this.$nextTick(this.initCharts)
         } else {
-          this.$message.error('首页数据获取失败')
+          this.$message.error(res.data.msg || '获取统计数据失败')
         }
       }).catch(() => {
         this.$message.error('请求失败，请检查网络')
