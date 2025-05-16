@@ -17,3 +17,11 @@ export const getEmailCode = (params) => {
 export const getPhoneCode = (params) => {
     return get(baseUrl + '/getPhoneCode', params)
 }
+
+export const sendVerificationCode =  (params) => {
+    return get(baseUrl + '/sendVerificationCode', params)
+}
+
+export const getSystemLog  = (params) => {
+    return get(baseUrl + '/getSystemLog', params)
+}

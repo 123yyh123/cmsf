@@ -24,19 +24,29 @@ export const constantRoutes = [
     {
         path: '/',
         component: Layout,
-        redirect: getUserRole() === 'admin' ? '/dashboard' : '/index',
-        children: [{
-            path: getUserRole() === 'admin' ? 'dashboard' : 'index',
-            name: getUserRole() === 'admin' ? 'Dashboard' : 'Index',
-            component: () => {
-                if (getUserRole() === 'admin') {
-                    return import('@/views/dashboard/index.vue')
-                } else {
-                    return import('@/views/dashboard/notice.vue')
-                }
+        redirect: '/redirectByRole', // 永远跳转到中间跳转页
+        children: [
+            {
+                path: 'dashboard',
+                name: 'Dashboard',
+                component: () => import('@/views/dashboard/index.vue'),
+                meta: {title: '首页', icon: 'dashboard', role: 'admin'}
             },
-            meta: {title: '首页', icon: 'dashboard'}
-        }]
+            {
+                path: 'index',
+                name: 'Index',
+                component: () => import('@/views/dashboard/notice.vue'),
+                meta: {title: '首页', icon: 'dashboard', role: 'teacher'}
+            },
+            {
+                path: 'redirectByRole',
+                name: 'RedirectByRole',
+                component: {
+                    // 临时中间页，执行跳转
+                    render: h => h('div')
+                },
+            }
+        ]
     }
 ]
 
@@ -212,6 +222,19 @@ export const asyncRoutes = [
             }
         ]
     },
+    {
+        path: '/system',
+        component: Layout,
+        meta: {title: '系统管理', icon: 'el-icon-setting', roles: ['admin']},
+        children: [
+            {
+                path: 'log',
+                name: 'SystemLog',
+                component: () => import('@/views/system/log'),
+                meta: {title: '系统日志', roles: ['admin']}
+            },
+        ]
+    },
 
     // 个人中心
     {
@@ -242,13 +265,18 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('token')
     const role = getUserRole()
-
     if (!token) {
         // 无 token，强制登录
         return to.path === '/login' ? next() : next('/login')
     }
-
+    if (to.path === '/login') {
+        next("/")
+    }
+    if (to.path === '/redirectByRole') {
+        next(role === 'admin' ? '/dashboard' : '/index')
+    }
     if (to.meta && to.meta.roles) {
+        console.log(to.meta.roles)
         // 目标路由有限制角色,审核预约特殊处理，允许辅导员访问
         if (to.meta.roles.includes(role) || (to.path === '/reservation/audit' && role === 'teacher' && localStorage.getItem('counselor'))) {
             // 当前角色在允许访问的角色列表中

@@ -3,7 +3,8 @@
     <div
         style="background: #ffffff; padding: 0 20px 0 10px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center;display: flex;margin-bottom: 20px;align-items: center;height: 40px">
       <el-icon class="el-icon-s-promotion" style="font-size: 20px; margin-right: 10px;"></el-icon>
-      <HorizontalScroll v-if="announcementList[0].text" :text="announcementList[0].text" :speed="40"/>
+      <HorizontalScroll v-if="announcementList.length > 0 && announcementList[0].text" :text="announcementList[0].text"
+                        :speed="40"/>
     </div>
     <div style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
       <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-evenly; gap: 20px;">
@@ -55,7 +56,7 @@
             <div style="display:flex;align-items: baseline;justify-content: space-between;">
               <div style="display: flex;gap:0 10px;text-align: center;align-items: baseline">
                 <div style="margin-bottom: 10px; font-size: 16px;">教室预约情况</div>
-                <el-button type="text" icon="el-icon-refresh" :size="20" :loading="loading"
+                <el-button type="text" icon="el-icon-refresh" size="mini" :loading="loading"
                            @click="refreshData"></el-button>
               </div>
               <div style="font-size: 14px;color: #666;">
@@ -119,7 +120,8 @@
                   </div>
                   <!-- 图片展示 -->
                   <div v-if="item.coverImage" style="margin-top: 8px;">
-                    <img :src="item.coverImage" alt="封面图片" style="max-width: 100%;max-height: 100px; border-radius: 6px;"/>
+                    <img :src="item.coverImage" alt="封面图片"
+                         style="max-width: 100%;max-height: 100px; border-radius: 6px;"/>
                   </div>
                   <!-- 底部信息 -->
                   <div
@@ -154,15 +156,34 @@ export default {
   components: {HorizontalScroll},
   data() {
     return {
-      stats: null,
+      stats: {
+        totalClassroom: 0,
+        repairClassroom: 0,
+        usableClassroom: 0,
+        idleClassroom: 0,
+        deviceTotal: 0,
+        deviceNormal: 0,
+        deviceRepair: 0,
+        deviceDamage: 0,
+        deviceScrap: 0,
+        totalReview: 0,
+        totalPeople: 0,
+        studentTotal: 0,
+        teacherTotal: 0,
+        pastWeekReservation: {},
+        recentlyVOS: [],
+      },
       loading: false,
       announcementList: [],
       isOverflowing: false,
     }
   },
   created() {
-    this.loadStats();
     this.getAnnouncementList()
+  },
+  async mounted() {
+    await this.$nextTick()
+    await this.initCharts()
   },
   methods: {
     getAnnouncementList() {
@@ -196,22 +217,27 @@ export default {
         this.loading = false
       })
     },
-    loadStats() {
-      getIndexInfo().then(res => {
+    async loadStats() {
+      try {
+        const res = await getIndexInfo()
         if (res.data.code === 200) {
           this.stats = res.data.data
-          this.$nextTick(this.initCharts)
         } else {
           this.$message.error(res.data.msg || '获取统计数据失败')
         }
-      }).catch(() => {
-        this.$message.error('请求失败，请检查网络')
-      })
+      } catch (e) {
+        this.$message.error('请求失败，请稍后重试')
+      }
     },
-    initCharts() {
-      if (!this.stats) return
-
+    async initCharts() {
+      await this.loadStats()
+      if (!this.stats) {
+        return
+      }
       // 1. 设备状态饼图
+      if (!this.$refs.devicePieChart) {
+        return
+      }
       echarts.init(this.$refs.devicePieChart).setOption({
         title: {text: '设备状态分布', left: 'center'},
         tooltip: {trigger: 'item'},
@@ -228,6 +254,9 @@ export default {
       })
 
       // 2. 用户比例饼图
+      if (!this.$refs.userPieChart) {
+        return
+      }
       echarts.init(this.$refs.userPieChart).setOption({
         title: {text: '用户组成比例', left: 'center'},
         tooltip: {trigger: 'item'},
@@ -242,6 +271,9 @@ export default {
       })
 
       // 3. 教室状态饼图
+      if (!this.$refs.classroomPieChart) {
+        return
+      }
       echarts.init(this.$refs.classroomPieChart).setOption({
         title: {text: '教室状态分布', left: 'center'},
         tooltip: {trigger: 'item'},
@@ -258,6 +290,9 @@ export default {
       // 4. 一周预约柱状图
       const days = Object.keys(this.stats.pastWeekReservation)
       const values = Object.values(this.stats.pastWeekReservation)
+      if (!this.$refs.reservationBarChart) {
+        return
+      }
       echarts.init(this.$refs.reservationBarChart).setOption({
         title: {text: '最近一周预约情况', left: 'center'},
         tooltip: {},
@@ -286,6 +321,9 @@ export default {
       })
 
       // 5. 预约趋势折线图
+      if (!this.$refs.reservationLineChart) {
+        return
+      }
       echarts.init(this.$refs.reservationLineChart).setOption({
         title: {text: '预约趋势图', left: 'center'},
         xAxis: {type: 'category', data: days},
