@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/util/request.js'
+import {get, post, put, del, download} from '@/util/request.js'
 
 const baseUrl = '/user'
 
@@ -36,4 +36,12 @@ export const updateUserInfo = (params) => {
 
 export const updatePassword = (params) => {
   return put(baseUrl+'/updatePassword', params)
+}
+
+export const downloadTemplateStudent = (params) => {
+  return download(baseUrl+'/download/template/student', params)
+}
+
+export const downloadTemplateTeacher = (params) => {
+  return download(baseUrl+'/download/template/teacher', params)
 }

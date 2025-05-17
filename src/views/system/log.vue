@@ -11,6 +11,8 @@
           <el-option label="修改" value="update"></el-option>
           <el-option label="删除" value="delete"></el-option>
           <el-option label="查询" value="select"></el-option>
+          <el-option label="下载" value="download"></el-option>
+          <el-option label="上传" value="upload"></el-option>
           <el-option label="其他" value="other"></el-option>
         </el-select>
         <el-select v-model="filters.successFlag" placeholder="操作结果" size="small" style="width: 150px; margin-right: 20px;">

@@ -2,6 +2,27 @@
   <div class="app-container" style="display: flex; flex-direction: column; height: 100%;">
     <el-card style="flex: 1; height:0;display: flex; flex-direction: column; overflow: auto;" class="con">
       <!-- 查询条件 -->
+      <div style="margin-bottom: 20px;display:flex;text-align: start">
+        <el-button type="primary" icon="el-icon-download" size="small" @click="download" style="margin-right: 20px;">
+          下载模板
+        </el-button>
+        <el-upload
+            class="upload-demo"
+            :action="uploadStudent"
+            name="file"
+            :show-file-list="false"
+            :on-success="handleSuccess"
+            :on-error="handleError"
+            :before-upload="beforeUpload"
+            :on-progress="handleProgress"
+            :headers="uploadHeaders"
+            :data="{}"
+            accept=".xls,.xlsx"
+        >
+          <el-button type="primary" size="small" icon="el-icon-upload2">导入数据</el-button>
+          <el-progress :percentage="uploadProgress" v-if="uploadProgress > 0"/>
+        </el-upload>
+      </div>
       <div style="display: flex; flex-wrap: wrap; margin-bottom: 20px;gap: 15px 20px;flex-shrink: 0;">
         <el-input v-model="filters.username" placeholder="用户名" style="width: 120px;"
                   size="small"/>
@@ -113,7 +134,8 @@
 </template>
 
 <script>
-import {getStudentPageList, deleteStudent, editStudent} from '@/apis/user';
+import {getStudentPageList, deleteStudent, editStudent, downloadTemplateStudent} from '@/apis/user';
+import {baseUrl} from "@/config";
 
 export default {
   data() {
@@ -156,13 +178,63 @@ export default {
       studentList: [],
       pageNum: 1,
       pageSize: 10,
-      total: 0
+      total: 0,
+      uploadStudent: baseUrl + '/user/upload/student',
+      uploadHeaders: {
+        token: localStorage.getItem("token") || "" // JWT 验证
+      },
+      uploadProgress: 0,
     };
   },
   created() {
     this.getStudentList();
   },
   methods: {
+    download() {
+      this.$confirm('确定要下载模板吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        downloadTemplateStudent().then(res => {
+          const url = window.URL.createObjectURL(new Blob([res.data]));
+          const link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', '学生导入模板.xlsx');
+          document.body.appendChild(link);
+          link.click();
+        })
+      }).catch(() => {
+      });
+    },
+    beforeUpload(file) {
+      const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type === 'application/vnd.ms-excel';
+      if (!isExcel) {
+        this.$message.error('只能上传 .xlsx 或.xls 文件');
+        return false;
+      }
+      return true;
+    },
+    handleSuccess(response) {
+      if (response.code === 200) {
+        this.$message.success(response.msg || '上传成功');
+        this.getStudentList();
+      } else {
+        this.$message.error(response.msg || '上传失败');
+      }
+    },
+    handleError() {
+      this.$message.error('上传失败');
+    },
+    handleProgress(event) {
+      this.uploadProgress = Math.round(event.percent);
+      if (this.uploadProgress === 100) {
+        setTimeout(() => {
+          this.uploadProgress = 0;
+        }, 500);
+      }
+    },
     sortChange(column) {
       console.log(column);
       if (column.order !== 'null') {

@@ -46,6 +46,17 @@ export const del = (url, params) => {
     })
 }
 
+// 下载文件
+export const download = (url, params) => {
+    return axios({
+        method: 'get',
+        baseURL: baseUrl,
+        url,
+        params,
+        responseType: 'blob'
+    })
+}
+
 // 每次在请求头上加上token
 axios.interceptors.request.use(
     config => {
