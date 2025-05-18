@@ -20,6 +20,14 @@
         <el-table-column prop="deviceName" label="设备名称"/>
         <el-table-column prop="createdByName" label="报修人" width="100"/>
         <el-table-column prop="description" label="故障描述"/>
+        <el-table-column prop="descImage" label="故障图片" width="100">
+          <template slot-scope="scope">
+            <el-image :src="scope.row.descImage" style="width: 50px; height: 50px;" fit="cover" :preview-src-list="[scope.row.descImage]"/>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="报修时间" width="160"/>
+        <el-table-column prop="repairTime" label="维修完成时间" width="160"/>
+        <el-table-column prop="repairResult" label="维修结果" width="100"/>
         <el-table-column prop="status" label="状态" width="100">
           <template slot-scope="scope">
             <el-tag @click="updateDeviceStatus(scope.row)" class="bindStatus"
@@ -29,7 +37,6 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="报修时间" width="160"/>
       </el-table>
 
       <!-- 分页 -->
@@ -50,7 +57,7 @@
         <el-form-item label="设备编号" prop="deviceCode">
           <el-input v-model="editStatusForm.deviceCode" disabled></el-input>
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item label="状态" prop="status">
           <el-select v-model="editStatusForm.status" placeholder="请选择状态">
             <el-option
                 v-for="item in statusOptions"
@@ -58,6 +65,13 @@
                 :label="item.label"
                 :value="item.value"
             ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="editStatusForm.status === '已完成'" label="维修结果">
+          <el-select v-model="editStatusForm.result" placeholder="请选择维修结果">
+            <el-option label="正常" value="正常"></el-option>
+            <el-option label="损坏" value="损坏"></el-option>
+            <el-option label="报废" value="报废"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -90,6 +104,7 @@ export default {
         id: '',
         status: '',
         deviceCode: '',
+        result: ''
       },
       editStatusRules: {
         status: [
@@ -116,6 +131,10 @@ export default {
   },
   methods: {
     submitEditStatusForm() {
+      if (this.editStatusForm.status === '已完成' && !this.editStatusForm.result) {
+        this.$message.error('请选择维修结果');
+        return;
+      }
       updateDeviceRepairStatus(this.editStatusForm)
           .then(res => {
             if (res.data.code === 200) {
@@ -134,6 +153,9 @@ export default {
       });
     },
     updateDeviceStatus(column) {
+      if (column.status === '已完成') {
+        return;
+      }
       this.editStatusForm.id = column.id;
       this.editStatusForm.status = column.status;
       this.editStatusForm.deviceCode = column.deviceCode;

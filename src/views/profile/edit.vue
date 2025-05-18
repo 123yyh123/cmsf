@@ -172,7 +172,21 @@ export default {
       getPhoneCode({phone: this.form.phone}).then(res => {
         if (res.data.code === 200) {
           this.startPhoneCodeTimer();
+          this.$message({
+            type: 'success',
+            message: '验证码已发送'
+          });
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          });
         }
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '验证码发送失败，请稍后重试'
+        })
       });
     },
     sendEmailCode() {
@@ -180,7 +194,21 @@ export default {
       getEmailCode({email: this.form.email}).then(res => {
         if (res.data.code === 200) {
           this.startEmailCodeTimer();
+          this.$message({
+            type: 'success',
+            message: '验证码已发送'
+          });
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.msg
+          });
         }
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '验证码发送失败，请稍后重试'
+        })
       });
     },
     startPhoneCodeTimer() {

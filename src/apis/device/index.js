@@ -1,4 +1,4 @@
-import {get, post, put, del} from '@/util/request.js'
+import { get, post, put, del } from '@/util/request.js'
 
 const baseUrl = '/device'
 
@@ -36,4 +36,12 @@ export const getDeviceRepairPage = (params) => {
 
 export const updateDeviceRepairStatus = (params) => {
     return put(baseUrl + '/repair/updateStatus', params)
+}
+
+export const createDeviceRepair = (params) => {
+    return post(baseUrl + '/repair/create', params)
+}
+
+export const getRepairDeviceBySelf = (params) => {
+    return get(baseUrl + '/repair/listMyPage', params)
 }

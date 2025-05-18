@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/util/request.js'
+import {get, post, put, del, download} from '@/util/request.js'
 
 const baseUrl = '/classroom'
 
@@ -55,4 +55,8 @@ export const getSchedule = (params) => {
 
 export const getScheduleDetail = (params) => {
   return get(baseUrl+'/schedule/detail', params)
+}
+
+export const downloadTemplateSchedule = (params) => {
+  return download(baseUrl+'/download/template/schedule', params)
 }

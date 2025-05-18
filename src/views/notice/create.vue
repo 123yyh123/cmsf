@@ -50,17 +50,41 @@
           </el-upload>
         </el-form-item>
         <el-form-item class="form-buttons">
-          <el-button type="primary" icon="el-icon-check" @click="submit(1)">发布</el-button>
+          <el-button type="primary" icon="el-icon-check" @click="submit(1)">立即发布</el-button>
+          <el-button icon="el-icon-alarm-clock" type="primary" @click="timerDialog=true;form.publishTime=''">定时发布
+          </el-button>
           <el-button type="warning" icon="el-icon-document" @click="submit(0)">存为草稿</el-button>
           <el-button icon="el-icon-refresh" @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
+    <el-dialog title="定时发布" :visible.sync="timerDialog" width="500px" center>
+      <el-alert type="info" :closable="false">
+        <template #title>
+          <span style="color: #409EFF">定时发布</span>
+        </template>
+        <p>
+          您可以选择一个时间，在指定的时间发布该公告。
+        </p>
+      </el-alert>
+      <el-divider></el-divider>
+      <el-date-picker
+          v-model="form.publishTime"
+          type="datetime"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          format="yyyy-MM-dd HH:mm:ss"
+          placeholder="选择日期时间">
+      </el-date-picker>
+      <div style="margin-top: 20px">
+        <el-button type="primary" @click="submit(2)">确定</el-button>
+        <el-button @click="timerDialog=false">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { addAnnouncement } from "@/apis/announcement";
+import {addAnnouncement} from "@/apis/announcement";
 
 export default {
   data() {
@@ -71,21 +95,23 @@ export default {
         coverImage: '',
         pinned: 0,
         status: 1,
+        publishTime: ''
       },
+      timerDialog: false,
       rules: {
         title: [
-          { required: true, message: '请输入标题', trigger: 'blur' },
-          { min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur' }
+          {required: true, message: '请输入标题', trigger: 'blur'},
+          {min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur'}
         ],
         content: [
-          { required: true, message: '请输入内容', trigger: 'blur' },
-          { min: 1, max: 1000, message: '长度在 1 到 1000 个字符', trigger: 'blur' }
+          {required: true, message: '请输入内容', trigger: 'blur'},
+          {min: 1, max: 1000, message: '长度在 1 到 1000 个字符', trigger: 'blur'}
         ],
         pinned: [
-          { required: true, message: '请选择置顶状态', trigger: 'change' }
+          {required: true, message: '请选择置顶状态', trigger: 'change'}
         ],
         status: [
-          { required: true, message: '请选择状态', trigger: 'change' }
+          {required: true, message: '请选择状态', trigger: 'change'}
         ]
       }
     }
@@ -109,19 +135,24 @@ export default {
     submit(status) {
       this.$refs.publishForm.validate(valid => {
         if (valid) {
+          if (status === 2 && !this.form.publishTime) {
+            return this.$message.error('请选择发布时间');
+          }
           const payload = {
             ...this.form,
             status // 使用传入的状态
           };
           addAnnouncement(payload).then(res => {
             if (res.data.code === 200) {
-              this.$message.success(status === 1 ? '发布成功' : '草稿保存成功');
+              this.$message.success(status === 1 ? '发布成功' : status === 2 ? '定时发布成功' : '保存成功');
               this.reset();
             } else {
               this.$message.error(res.data.msg || '操作失败');
             }
           }).catch(() => {
             this.$message.error('请求失败');
+          }).finally(() => {
+            this.timerDialog = false;
           });
         }
       });
@@ -138,12 +169,14 @@ export default {
 .enhanced-form {
   padding: 20px;
 }
+
 .publish-card {
   max-width: 900px;
   margin: 0 auto;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
 }
+
 .header {
   font-size: 18px;
   font-weight: bold;
@@ -151,23 +184,28 @@ export default {
   align-items: center;
   color: #409EFF;
 }
+
 .image-wrapper {
   position: relative;
   width: 150px;
   height: 100px;
 }
+
 .avatar {
   max-width: 100%;
   max-height: 100px;
   object-fit: fill;
 }
+
 .upload-placeholder i {
   font-size: 28px;
 }
+
 .form-buttons {
   text-align: right;
   margin-top: 20px;
 }
+
 .delete-icon {
   position: absolute;
   top: -6px;
@@ -181,6 +219,7 @@ export default {
   padding: 2px;
   z-index: 10;
 }
+
 .avatar-uploader {
   display: inline-block;
   position: relative;

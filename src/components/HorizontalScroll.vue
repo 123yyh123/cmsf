@@ -28,8 +28,6 @@ export default {
   white-space: nowrap;
   height: 40px;
   line-height: 40px;
-  background-color: #f9f9f9;
-  border: 1px solid #eee;
   position: relative;
 }
 

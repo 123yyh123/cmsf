@@ -25,3 +25,15 @@ export const getSelfReservation = (params) => {
 export const addReservation = (params) => {
     return post(baseUrl + '/add', params)
 }
+
+export const getMySchedule = (params) => {
+    return get(baseUrl + '/schedule/my', params)
+}
+
+export const cancelSchedule = (params) => {
+    return del(baseUrl + '/schedule/cancel', params)
+}
+
+export const cancelReservation = (params) => {
+    return del(baseUrl + '/record/cancel', params)
+}

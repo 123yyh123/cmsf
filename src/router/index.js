@@ -65,7 +65,7 @@ export const asyncRoutes = [
         path: '/index',
         name: 'Index',
         meta: {
-            title: '公告展示',
+            title: '首页',
             icon: 'el-icon-s-home',
             roles: ['teacher']
         },

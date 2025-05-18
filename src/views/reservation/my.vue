@@ -33,6 +33,11 @@
         <el-table-column prop="reviewTime" label="审核时间" width="160"/>
         <el-table-column prop="remark" label="审核备注" show-overflow-tooltip/>
         <el-table-column prop="createTime" label="提交时间" width="160"/>
+        <el-table-column label="操作" width="100" fixed="right">
+          <template slot-scope="scope">
+            <el-button size="mini" type="danger" @click="handleCancel(scope.row)">撤销</el-button>
+          </template>
+        </el-table-column>
       </el-table>
 
       <!-- 分页 -->
@@ -52,8 +57,8 @@
 </template>
 
 <script>
-import {getSelfReservation} from '@/apis/reservation';
-import {padZero} from "@/util/timeSlot"; // 替换为实际路径
+import {getSelfReservation,cancelReservation} from '@/apis/reservation';
+import {padZero} from "@/util/timeSlot";
 
 export default {
   data() {
@@ -85,6 +90,29 @@ export default {
     this.getList();
   },
   methods: {
+    handleCancel(column) {
+      if (column.status === 'approved' || column.status === 'rejected') {
+        this.$message.error('该预约已审核完毕，不能撤销');
+        return;
+      }
+      this.$confirm('确定撤销该预约吗？撤销后将无法恢复', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        cancelReservation({id: column.id}).then(res => {
+          if (res.data.code === 200) {
+            this.$message.success('撤销成功');
+            this.getList();
+          } else {
+            this.$message.error(res.data.msg || '撤销失败');
+          }
+        }).catch(() => {
+          this.$message.error('撤销失败');
+        });
+      }).catch(() => {
+      });
+    },
     handleSearch() {
       this.getList();
     },

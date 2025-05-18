@@ -82,6 +82,9 @@
             <el-option label="考试" value="考试"/>
           </el-select>
         </el-form-item>
+        <el-form-item  v-if="form.type ==='教学'" label="课程名称">
+          <el-input v-model="form.courseName" placeholder="请输入课程名称"></el-input>
+        </el-form-item>
         <el-form-item label="预约原因" prop="reason">
           <el-input v-model="form.reason" type="textarea" :rows="3" placeholder="请输入内容"></el-input>
         </el-form-item>
@@ -91,15 +94,48 @@
         <el-button @click="dialogVisible = false">取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog
+        :title="'教室使用详情：' + detailDialog.roomName"
+        :visible.sync="detailDialog.visible"
+        width="500px"
+    >
+      <el-card>
+        <el-descriptions :column="1" border size="small" v-if="detailDialog.data">
+          <el-descriptions-item label="教室编号">{{ detailDialog.data.classroomCode }}</el-descriptions-item>
+          <el-descriptions-item label="日期">{{ detailDialog.data.date }}</el-descriptions-item>
+          <el-descriptions-item label="时间段">{{ detailDialog.data.timeSlot }}</el-descriptions-item>
+          <el-descriptions-item label="使用类型">{{ detailDialog.data.type }}</el-descriptions-item>
+          <el-descriptions-item v-if="detailDialog.data.type==='教学'" label="课程名称">{{
+              detailDialog.data.courseName
+            }}
+          </el-descriptions-item>
+          <el-descriptions-item label="使用人">{{
+              detailDialog.data.realName || ('ID:' + detailDialog.data.userId)
+            }}
+          </el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag
+                :type="detailDialog.data.status==='待使用' ? 'success' :detailDialog.data.status==='使用中' ? 'warning' :'info'">
+              {{ detailDialog.data.status }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="备注">{{ detailDialog.data.remark || '--' }}</el-descriptions-item>
+        </el-descriptions>
+        <div v-if="detailDialog.data && detailDialog.data.userId === userId" style="margin-top: 20px;">
+          <el-button type="primary" @click="cancel(detailDialog.data)">取消预约</el-button>
+        </div>
+      </el-card>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {getTimeSlot} from "@/util/timeSlot";
 import {getAllBuilding} from "@/apis/building";
-import {getSchedule} from "@/apis/classroom";
+import {getSchedule, getScheduleDetail} from "@/apis/classroom";
 import dayjs from "dayjs";
-import {addReservation} from "@/apis/reservation";
+import {addReservation, cancelSchedule} from "@/apis/reservation";
+import {getUserId} from "@/util/jwt";
 
 export default {
   data() {
@@ -119,17 +155,24 @@ export default {
       form: {
         classroomId: '',
         type: "教学",
+        courseName: '',
         roomName: '',
         timeSlot: '',
         startTime: '',
         endTime: '',
         reason: '',
       },
+      detailDialog: {
+        visible: false,
+        roomName: '',
+        data: null
+      },
       rules: {
         type: [
           {required: true, message: "请选择预约类型", trigger: "change"},
         ],
-      }
+      },
+      userId: '',
     };
   },
   created() {
@@ -138,11 +181,44 @@ export default {
     });
     this.getBuildings();
     this.fetchData();
+    this.getUserInfoId();
   },
   methods: {
+    cancel() {
+      const param = {
+        scheduleId: this.detailDialog.data.id,
+      }
+      this.$confirm('确认取消预约？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        cancelSchedule(param).then(res => {
+          if (res.data.code === 200){
+            this.$message.success('取消成功');
+            this.fetchData();
+          }else {
+            this.$message.error(res.data.msg || '取消失败');
+          }
+          this.detailDialog.visible = false;
+        }).catch(() => {
+          this.$message.error('取消失败');
+          this.detailDialog.visible=false;
+        });
+      }).catch(() => {
+        this.detailDialog.visible=false;
+      })
+    },
+    getUserInfoId() {
+      this.userId = getUserId();
+    },
     submit() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          if (this.form.type==='教学'&&!this.form.courseName){
+            this.$message.error('请填写课程名称');
+            return;
+          }
           this.$confirm('您预约的教室为' + this.form.roomName + '，时间段为' + this.form.timeSlot + '，是否确认预约？', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
@@ -164,7 +240,7 @@ export default {
                   message: res.data.msg
                 });
               }
-              this.dialogVisible  = false;
+              this.dialogVisible = false;
             }).catch(() => {
               this.dialogVisible = false;
             });
@@ -177,25 +253,35 @@ export default {
       // 判断选择的日期是否晚于当前日期，只能预约之后的时间
       const startDate = this.filter.date + ' ' + timeSlot.split('-')[0];
       const endDate = this.filter.date + ' ' + timeSlot.split('-')[1];
-      if (new Date(startDate) < new Date()) {
-        this.$message.error('不能选择过去时间');
-        return;
-      }
       if (status !== '空闲') {
-        this.$alert('当前教室该时间段已被预约', '提示', {
-          confirmButtonText: '确定',
-          type: 'info'
+        getScheduleDetail({
+          classroomId,
+          timeSlot,
+          scheduleDate: this.filter.date
+        }).then((res) => {
+          if (res.data.code === 200) {
+            this.detailDialog = {
+              visible: true,
+              roomName: res.data.data.classroomCode,
+              data: res.data.data
+            };
+          }
         });
-        return;
+      } else {
+        // 判断日期
+        if (new Date(startDate) < new Date()) {
+          this.$message.error('不能选择过去时间');
+          return;
+        }
+        this.form = {
+          classroomId,
+          timeSlot,
+          roomName,
+          startTime: startDate,
+          endTime: endDate
+        };
+        this.dialogVisible = true;
       }
-      this.form = {
-        classroomId,
-        timeSlot,
-        roomName,
-        startTime: startDate,
-        endTime: endDate
-      };
-      this.dialogVisible = true;
     },
     handleSizeChange(newSize) {
       this.pageSize = newSize;

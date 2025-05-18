@@ -25,8 +25,8 @@
         </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-              {{ scope.row.status === 1 ? '已发布' : '草稿' }}
+            <el-tag :type="scope.row.status === 1 ? 'success' : scope.row.status === 2 ? ' warning' : 'info'">
+              {{ scope.row.status === 1 ? '已发布' : scope.row.status === 2 ? '待发布' : '草稿' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -91,6 +91,7 @@
         <el-form-item label="状态" prop="status" ref="status">
           <el-select v-model="editInfo.editForm.status" placeholder="请选择" size="small">
             <el-option label="已发布" :value="1"></el-option>
+            <el-option v-if="editInfo.editForm.status ===2" label="待发布" :value="2"></el-option>
             <el-option label="草稿" :value="0"></el-option>
           </el-select>
         </el-form-item>
@@ -211,7 +212,7 @@ export default {
       }
     },
     del(column) {
-      this.$confirm('确定删除该公告吗？', '提示',{
+      this.$confirm('确定删除该公告吗？', '提示', {
         type: 'warning'
       }).then(() => {
         deleteAnnouncement({id: column.id}).then(res => {
