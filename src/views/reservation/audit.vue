@@ -44,7 +44,7 @@
             <div>{{ scope.row.startTime }} ~{{ scope.row.endTime }}</div>
           </template>
         </el-table-column>
-        <el-table-column prop="reason" label="预约原因"/>
+        <el-table-column prop="reason" label="预约原因" width="200"/>
         <el-table-column prop="createTime" label="申请时间" width="200" sortable="custom"
                          :sort-orders="['ascending', 'descending','null']"/>
         <el-table-column label="操作" width="180" fixed="right">

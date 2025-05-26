@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/util/request.js'
+import {get, post, put, del, download} from '@/util/request.js'
 
 const baseUrl = '/device'
 
@@ -44,4 +44,8 @@ export const createDeviceRepair = (params) => {
 
 export const getRepairDeviceBySelf = (params) => {
     return get(baseUrl + '/repair/listMyPage', params)
+}
+
+export const getAllQRCode = () => {
+    return download(baseUrl + '/getAllQR/download')
 }

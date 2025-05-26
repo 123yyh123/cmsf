@@ -1,4 +1,4 @@
-import {get, post, put, del} from '@/util/request.js'
+import {get, post, put, del, download} from '@/util/request.js'
 
 const baseUrl = '/common'
 

@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column prop="reason" label="预约原因"/>
         <el-table-column prop="reviewer" label="审核人" width="100"/>
-        <el-table-column prop="remark" label="审核备注"/>
+        <el-table-column prop="remark" label="审核备注" width="200"/>
         <el-table-column prop="status" label="审核状态" width="100">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.status === 'pending'" type="warning">待审核</el-tag>

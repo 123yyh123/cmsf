@@ -27,11 +27,6 @@ export const updateClassroom = (params) => {
   return put(baseUrl+'/update', params)
 }
 
-//  获取教室与设备绑定关系
-export const getClassroomBindDevice = (params) => {
-  return get(baseUrl+'/getClassroomBindDevice', params)
-}
-
 // 解绑教室与设备
 export const unbindClassroomBindDevice = (params) => {
   return put(baseUrl+'/unbindDevice', params)
@@ -56,6 +51,11 @@ export const getSchedule = (params) => {
 export const getScheduleDetail = (params) => {
   return get(baseUrl+'/schedule/detail', params)
 }
+
+export const getAllQRCode = () => {
+  return download(baseUrl + '/getAllQR/download')
+}
+
 
 export const downloadTemplateSchedule = (params) => {
   return download(baseUrl+'/download/template/schedule', params)

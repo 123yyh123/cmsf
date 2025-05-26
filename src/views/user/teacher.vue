@@ -35,6 +35,10 @@
           <el-option label="启用" :value="1"/>
           <el-option label="禁用" :value="0"/>
         </el-select>
+        <el-select v-model="filters.isCounselor" placeholder="辅导员" style="width: 120px; " size="small">
+          <el-option label="是" :value="1"/>
+          <el-option label="否" :value="0"/>
+        </el-select>
         <div>
           <el-button type="primary" icon="el-icon-search" size="small" @click="handleSearch">搜索</el-button>
           <el-button icon="el-icon-refresh" size="small" @click="handleReset">重置</el-button>
@@ -67,6 +71,14 @@
           <template slot-scope="scope">
             <el-tag :type="scope.row.status === 1 ? 'success' : 'danger'">
               {{ scope.row.status === 1 ? '启用' : '禁用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isCounselor" label="辅导员" width="80">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.isCounselor? 'success' : 'info'" @click="changeCounselor(scope.row)"
+                    class="counselor">
+              {{ scope.row.isCounselor ? '是' : '否' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -118,6 +130,38 @@
         <el-button @click="editDialog = false">取消</el-button>
       </el-form>
     </el-dialog>
+    <el-dialog title="辅导员详情" :visible.sync="counselorDetailDialog" width="500px" center>
+      <el-form label-width="80px" label-position="left">
+        <el-form-item label="教工号">
+          {{ counselorDetail.teacherNo }}
+        </el-form-item>
+        <el-form-item label="辅导员">
+          <el-select v-model="counselorDetail.isCounselor">
+            <el-option label="是" :value="true"/>
+            <el-option label="否" :value="false"/>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="管理班级" v-if="counselorDetail.isCounselor">
+          <el-select v-model="counselorDetail.className"
+                     multiple
+                     filterable
+                     allow-create
+                     default-first-option
+                     placeholder="请输入管理班级">
+            <el-option
+                v-for="item in counselorDetail.className"
+                :key="item"
+                :label="item"
+                :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitEditCounselor">保存</el-button>
+          <el-button @click="counselorDetailDialog = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -126,7 +170,8 @@ import {
   getTeacherPageList,
   deleteTeacher,
   editTeacher,
-  downloadTemplateTeacher
+  downloadTemplateTeacher,
+  getManagerClass, updateManagerClassroom
 } from '@/apis/user';
 import {baseUrl} from "@/config"; // 注意替换成你的实际API路径
 
@@ -138,6 +183,7 @@ export default {
         teacherNo: '',
         title: '',
         department: '',
+        isCounselor: '',
         status: '',
         orderByField: '',
         orderByType: ''
@@ -175,12 +221,61 @@ export default {
         token: localStorage.getItem("token") || "" // JWT 验证
       },
       uploadProgress: 0,
+      counselorDetailDialog: false,
+      counselorDetail: {
+        id: '',
+        teacherNo: '',
+        isCounselor: false,
+        className: []
+      }
     };
   },
   created() {
     this.getTeacherList();
   },
   methods: {
+    submitEditCounselor() {
+      console.log(this.counselorDetail)
+      this.$confirm('确定要修改吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        updateManagerClassroom({
+          userId: this.counselorDetail.id,
+          isCounselor: this.counselorDetail.isCounselor,
+          className: this.counselorDetail.className
+        }).then(res => {
+          if (res.data.code === 200) {
+            this.$message.success('修改成功');
+            this.counselorDetailDialog = false;
+            this.getTeacherList();
+          } else {
+            this.$message.error(res.data.msg || '修改失败');
+          }
+        }).catch(() => {
+          this.$message.error('修改失败');
+        })
+      });
+    },
+    changeCounselor(row) {
+      this.counselorDetailDialog = true;
+      this.counselorDetail = {
+        id: row.id,
+        teacherNo: row.teacherNo,
+        isCounselor: row.isCounselor,
+        className: []
+      };
+      if (row.isCounselor) {
+        getManagerClass({
+          userId: row.id
+        }).then(res => {
+          if (res.data.code === 200) {
+            this.counselorDetail.className = res.data.data;
+          }
+        })
+      }
+    },
     download() {
       this.$confirm('确定要下载模板吗？', '提示', {
         confirmButtonText: '确定',
@@ -328,5 +423,9 @@ export default {
 <style scoped>
 .con::-webkit-scrollbar {
   display: none;
+}
+
+.counselor:hover {
+  cursor: pointer;
 }
 </style>

@@ -1,21 +1,26 @@
 <template>
   <div
-    class="app-container"
-    style="display: flex; flex-direction: column; height: 100%"
+      class="app-container"
+      style="display: flex; flex-direction: column; height: 100%"
   >
     <el-card
-      style="
+        style="
         flex: 1;
         height: 0;
         display: flex;
         flex-direction: column;
         overflow: auto;
       "
-      class="con"
+        class="con"
     >
+      <div style="margin-bottom: 20px;display:flex;text-align: start">
+        <el-button type="primary" icon="el-icon-download" size="small" @click="download" style="margin-right: 20px;">
+          下载教室二维码
+        </el-button>
+      </div>
       <!-- 查询条件 -->
       <div
-        style="
+          style="
           display: flex;
           margin-bottom: 20px;
           gap: 15px 20px;
@@ -25,70 +30,70 @@
       >
         <div style="display: flex; flex-wrap: wrap; gap: 15px 20px">
           <el-input
-            placeholder="请输入教室名称"
-            style="width: 200px"
-            size="small"
-            v-model="searchFields.classroomName"
+              placeholder="请输入教室名称"
+              style="width: 200px"
+              size="small"
+              v-model="searchFields.classroomName"
           ></el-input>
           <!--        筛选楼栋-->
           <el-select
-            placeholder="选择楼栋"
-            style="width: 120px"
-            size="small"
-            v-model="searchFields.building"
+              placeholder="选择楼栋"
+              style="width: 120px"
+              size="small"
+              v-model="searchFields.building"
           >
             <el-option
-              v-for="building in buildingList"
-              :key="building.id"
-              :label="building.buildingName"
-              :value="building.id"
+                v-for="building in buildingList"
+                :key="building.id"
+                :label="building.buildingName"
+                :value="building.id"
             ></el-option>
           </el-select>
           <el-select
-            placeholder="选择状态"
-            style="width: 120px"
-            size="small"
-            v-model="searchFields.status"
+              placeholder="选择状态"
+              style="width: 120px"
+              size="small"
+              v-model="searchFields.status"
           >
             <el-option
-              v-for="status in statusList"
-              :key="status.value"
-              :label="status.label"
-              :value="status.value"
+                v-for="status in statusList"
+                :key="status.value"
+                :label="status.label"
+                :value="status.value"
             ></el-option>
           </el-select>
           <!--        用途 自习/教学/会议/考试-->
           <el-select
-            placeholder="选择用途"
-            style="width: 120px"
-            size="small"
-            v-model="searchFields.type"
+              placeholder="选择用途"
+              style="width: 120px"
+              size="small"
+              v-model="searchFields.type"
           >
             <el-option
-              v-for="type in typeList"
-              :key="type.value"
-              :label="type.label"
-              :value="type.value"
+                v-for="type in typeList"
+                :key="type.value"
+                :label="type.label"
+                :value="type.value"
             ></el-option>
           </el-select>
           <div>
             <el-button
-              type="primary"
-              icon="el-icon-search"
-              size="small"
-              @click="getClassroomList()"
-              >查询
+                type="primary"
+                icon="el-icon-search"
+                size="small"
+                @click="getClassroomList()"
+            >查询
             </el-button>
             <el-button
-              icon="el-icon-refresh"
-              size="small"
-              @click="resetSearchFields()"
-              >重置
+                icon="el-icon-refresh"
+                size="small"
+                @click="resetSearchFields()"
+            >重置
             </el-button>
           </div>
         </div>
         <div
-          style="
+            style="
             gap: 15px 20px;
             display: flex;
             flex-wrap: wrap;
@@ -96,46 +101,55 @@
           "
         >
           <el-button
-            type="danger"
-            icon="el-icon-delete"
-            size="small"
-            @click="handleDeleteBatch"
-            >批量删除
+              type="danger"
+              icon="el-icon-delete"
+              size="small"
+              @click="handleDeleteBatch"
+          >批量删除
           </el-button>
           <el-button
-            type="primary"
-            icon="el-icon-plus"
-            size="small"
-            @click="addClassroomDialog = true"
-            >新增教室
+              type="primary"
+              icon="el-icon-plus"
+              size="small"
+              @click="addClassroomDialog = true"
+          >新增教室
           </el-button>
         </div>
       </div>
       <el-table
-        :data="classroomList"
-        style="width: 100%; margin-top: 20px"
-        border
-        @select="handleSelect"
-        @select-all="handleSelectAll"
+          :data="classroomList"
+          style="width: 100%; margin-top: 20px"
+          border
+          @select="handleSelect"
+          @select-all="handleSelectAll"
       >
         <el-table-column
-          type="selection"
-          width="55"
-          align="center"
-          fixed="left"
+            type="selection"
+            width="55"
+            align="center"
+            fixed="left"
         ></el-table-column>
-        <el-table-column prop="classroomCode" label="教室编号" width="120" />
-        <el-table-column prop="classroomName" label="教室名称" />
-        <el-table-column prop="buildingName" label="楼栋" />
+        <el-table-column prop="classroomCode" label="教室编号" width="120"/>
+        <el-table-column prop="classroomName" label="教室名称"/>
+        <el-table-column prop="buildingName" label="楼栋"/>
         <el-table-column prop="floor" label="楼层">
-          <template slot-scope="scope"> F{{ scope.row.floor }} </template>
+          <template slot-scope="scope"> F{{ scope.row.floor }}</template>
         </el-table-column>
-        <el-table-column prop="capacity" label="容量/人" />
-        <el-table-column prop="type" label="用途" />
+        <el-table-column prop="capacity" label="容量/人"/>
+        <el-table-column prop="photoUrl" label="教室实景图">
+          <template slot-scope="scope">
+            <el-image
+                style="width: 60px; height: 40px"
+                :src="scope.row.photoUrl"
+                fit="cover"
+                lazy
+            ></el-image>
+          </template>
+        </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <el-tag :type="scope.row.status === '正常' ? 'success' : 'danger'"
-              >{{ scope.row.status }}
+            >{{ scope.row.status }}
             </el-tag>
           </template>
         </el-table-column>
@@ -143,87 +157,88 @@
           <template slot-scope="scope">
             <div style="display: flex; justify-content: center">
               <el-button
-                size="mini"
-                @click="handleDetail(scope.row)"
-                type="text"
-                style="color: #409eff"
-                >详情
+                  size="mini"
+                  @click="handleDetail(scope.row)"
+                  type="text"
+                  style="color: #409eff"
+              >详情
               </el-button>
               <el-button
-                size="mini"
-                @click="handleEdit(scope.row)"
-                type="text"
-                style="color: #f4b03e"
-                >编辑</el-button
+                  size="mini"
+                  @click="handleEdit(scope.row)"
+                  type="text"
+                  style="color: #f4b03e"
+              >编辑
+              </el-button
               >
               <el-button
-                size="mini"
-                type="text"
-                @click="handleDelete(scope.row)"
-                style="color: #f56c6c"
-                >删除
+                  size="mini"
+                  type="text"
+                  @click="handleDelete(scope.row)"
+                  style="color: #f56c6c"
+              >删除
               </el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
       <el-pagination
-        style="margin-top: 20px; float: right; margin-bottom: 20px"
-        background
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        :page-size="pageSize"
-        :page-sizes="[10, 20, 30, 50]"
-        :current-page.sync="pageNum"
-        @size-change="handleSizeChange"
-        @current-change="getClassroomList()"
+          style="margin-top: 20px; float: right; margin-bottom: 20px"
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          :page-size="pageSize"
+          :page-sizes="[10, 20, 30, 50]"
+          :current-page.sync="pageNum"
+          @size-change="handleSizeChange"
+          @current-change="getClassroomList()"
       ></el-pagination>
       <el-dialog
-        title="新增教室"
-        :visible.sync="addClassroomDialog"
-        width="500px"
-        center
+          title="新增教室"
+          :visible.sync="addClassroomDialog"
+          width="500px"
+          center
       >
         <el-form
-          ref="form"
-          :model="newClassroom"
-          :rules="rules"
-          label-width="100px"
-          label-position="left"
-          style="padding: 20px"
+            ref="form"
+            :model="newClassroom"
+            :rules="rules"
+            label-width="100px"
+            label-position="left"
+            style="padding: 20px"
         >
           <el-form-item label="教室编号" prop="classroomCode">
             <el-input
-              v-model="newClassroom.classroomCode"
-              style="width: 100%"
-              placeholder="请输入教室编号(如A101)"
+                v-model="newClassroom.classroomCode"
+                style="width: 100%"
+                placeholder="请输入教室编号(如A101)"
             ></el-input>
           </el-form-item>
           <el-form-item label="教室名称">
             <el-input
-              v-model="newClassroom.classroomName"
-              style="width: 100%"
-              placeholder="请输入教室名称(未填则自动生成)"
+                v-model="newClassroom.classroomName"
+                style="width: 100%"
+                placeholder="请输入教室名称(未填则自动生成)"
             ></el-input>
           </el-form-item>
           <el-form-item label="容量" prop="capacity">
             <el-input
-              v-model.number="newClassroom.capacity"
-              style="width: 100%"
-              placeholder="请输入容量"
+                v-model.number="newClassroom.capacity"
+                style="width: 100%"
+                placeholder="请输入容量"
             ></el-input>
           </el-form-item>
           <el-form-item label="用途" prop="type">
             <el-select
-              v-model="newClassroom.type"
-              placeholder="请选择用途"
-              style="width: 100%"
+                v-model="newClassroom.type"
+                placeholder="请选择用途"
+                style="width: 100%"
             >
               <el-option
-                v-for="type in typeList"
-                :key="type.value"
-                :label="type.label"
-                :value="type.value"
+                  v-for="type in typeList"
+                  :key="type.value"
+                  :label="type.label"
+                  :value="type.value"
               ></el-option>
             </el-select>
           </el-form-item>
@@ -235,68 +250,85 @@
         </span>
       </el-dialog>
       <el-dialog
-        title="编辑教室"
-        :visible.sync="editClassroomDialog"
-        width="500px"
-        center
+          title="编辑教室"
+          :visible.sync="editClassroomDialog"
+          width="500px"
+          center
       >
         <el-form
-          ref="editForm"
-          :model="editClassroom"
-          :rules="rules"
-          label-width="100px"
-          label-position="left"
-          style="padding: 20px"
+            ref="editForm"
+            :model="editClassroom"
+            :rules="rules"
+            label-width="100px"
+            label-position="left"
+            style="padding: 20px"
         >
           <el-form-item label="教室编号" prop="classroomCode">
             <el-input
-              v-model="editClassroom.classroomCode"
-              style="width: 100%"
-              :disabled="true"
+                v-model="editClassroom.classroomCode"
+                style="width: 100%"
+                :disabled="true"
             ></el-input>
           </el-form-item>
           <el-form-item label="教室名称">
             <el-input
-              v-model="editClassroom.classroomName"
-              style="width: 100%"
-              placeholder="请输入教室名称(未填则自动生成)"
+                v-model="editClassroom.classroomName"
+                style="width: 100%"
+                placeholder="请输入教室名称(未填则自动生成)"
             ></el-input>
           </el-form-item>
           <el-form-item label="容量" prop="capacity">
             <el-input
-              v-model.number="editClassroom.capacity"
-              style="width: 100%"
-              placeholder="请输入容量"
+                v-model.number="editClassroom.capacity"
+                style="width: 100%"
+                placeholder="请输入容量"
             ></el-input>
           </el-form-item>
           <el-form-item label="用途" prop="type">
             <el-select
-              v-model="editClassroom.type"
-              placeholder="请选择用途"
-              style="width: 100%"
+                v-model="editClassroom.type"
+                placeholder="请选择用途"
+                style="width: 100%"
             >
               <el-option
-                v-for="type in typeList"
-                :key="type.value"
-                :label="type.label"
-                :value="type.value"
+                  v-for="type in typeList"
+                  :key="type.value"
+                  :label="type.label"
+                  :value="type.value"
               ></el-option>
             </el-select>
           </el-form-item>
 
           <el-form-item label="状态" prop="status">
             <el-select
-              v-model="editClassroom.status"
-              placeholder="请选择状态"
-              style="width: 100%"
+                v-model="editClassroom.status"
+                placeholder="请选择状态"
+                style="width: 100%"
             >
               <el-option
-                v-for="status in statusList"
-                :key="status.value"
-                :label="status.label"
-                :value="status.value"
+                  v-for="status in statusList"
+                  :key="status.value"
+                  :label="status.label"
+                  :value="status.value"
               ></el-option>
             </el-select>
+          </el-form-item>
+          <el-form-item label="教室实景">
+            <el-upload
+                class="avatar-uploader"
+                action="#"
+                ref="upload"
+                :show-file-list="false"
+                :on-change="handleAvatarChange"
+                :auto-upload="false"
+            >
+              <img
+                  v-if="editClassroom.photoUrl"
+                  :src="editClassroom.photoUrl"
+                  class="avatar"
+              />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
           </el-form-item>
         </el-form>
 
@@ -318,42 +350,48 @@
                   <el-divider>教室信息</el-divider>
                   <el-descriptions :column="1" border>
                     <el-descriptions-item label="教室编号">{{
-                      classroomDetail.classroomCode
-                    }}</el-descriptions-item>
+                        classroomDetail.classroomCode
+                      }}
+                    </el-descriptions-item>
                     <el-descriptions-item label="教室名称">{{
-                      classroomDetail.classroomName
-                    }}</el-descriptions-item>
+                        classroomDetail.classroomName
+                      }}
+                    </el-descriptions-item>
                     <el-descriptions-item label="楼栋"
-                      >{{ classroomDetail.buildingName }}
+                    >{{ classroomDetail.buildingName }}
                     </el-descriptions-item>
                     <el-descriptions-item label="楼层"
-                      >F{{ classroomDetail.floor }}</el-descriptions-item
+                    >F{{ classroomDetail.floor }}
+                    </el-descriptions-item
                     >
                     <el-descriptions-item label="容量"
-                      >{{ classroomDetail.capacity }} 人</el-descriptions-item
+                    >{{ classroomDetail.capacity }} 人
+                    </el-descriptions-item
                     >
                     <el-descriptions-item label="用途">{{
-                      classroomDetail.type
-                    }}</el-descriptions-item>
+                        classroomDetail.type
+                      }}
+                    </el-descriptions-item>
                     <el-descriptions-item label="状态">
                       <el-tag
-                        :type="
+                          :type="
                           classroomDetail.status === '正常'
                             ? 'success'
                             : 'danger'
                         "
-                        >{{ classroomDetail.status }}
+                      >{{ classroomDetail.status }}
                       </el-tag>
                     </el-descriptions-item>
                     <el-descriptions-item label="备注">{{
-                      classroomDetail.remark || "无"
-                    }}</el-descriptions-item>
+                        classroomDetail.remark || "无"
+                      }}
+                    </el-descriptions-item>
                   </el-descriptions>
                 </el-col>
                 <el-col :span="12">
-                  <el-divider> 教室设备 </el-divider>
+                  <el-divider> 教室设备</el-divider>
                   <div
-                    style="
+                      style="
                       display: flex;
                       justify-content: flex-end;
                       margin-bottom: 10px;
@@ -361,77 +399,79 @@
                   >
                     <el-popover placement="right" width="400" trigger="click">
                       <div
-                        style="
+                          style="
                           display: flex;
                           justify-content: space-evenly;
                           align-items: baseline;
                         "
                       >
                         <el-select
-                          v-model="value"
-                          multiple
-                          filterable
-                          remote
-                          reserve-keyword
-                          placeholder="请输入关键词"
-                          :remote-method="remoteMethod"
-                          :loading="loading"
+                            v-model="value"
+                            multiple
+                            filterable
+                            remote
+                            reserve-keyword
+                            placeholder="请输入关键词"
+                            :remote-method="remoteMethod"
+                            :loading="loading"
                         >
                           <el-option
-                            v-for="item in options"
-                            :key="item.id"
-                            :label="item.label"
-                            :value="item.id"
+                              v-for="item in options"
+                              :key="item.id"
+                              :label="item.label"
+                              :value="item.id"
                           >
                           </el-option>
                           <el-pagination
-                            background
-                            layout="prev, pager, next, jumper"
-                            :page-size="devicePageSize"
-                            :current-page.sync="devicePageNum"
-                            :total="deviceTotal"
-                            @current-change="fetchData"
-                            style="margin-top: 10px"
+                              background
+                              layout="prev, pager, next, jumper"
+                              :page-size="devicePageSize"
+                              :current-page.sync="devicePageNum"
+                              :total="deviceTotal"
+                              @current-change="fetchData"
+                              style="margin-top: 10px"
                           >
                           </el-pagination>
                         </el-select>
                         <div style="text-align: center">
                           <el-button
-                            type="primary"
-                            size="mini"
-                            @click="handleBind"
-                            >确定</el-button
+                              type="primary"
+                              size="mini"
+                              @click="handleBind"
+                          >确定
+                          </el-button
                           >
                         </div>
                       </div>
                       <el-button
-                        slot="reference"
-                        type="primary"
-                        size="mini"
-                        @click="openBind"
-                        >绑定设备</el-button
+                          slot="reference"
+                          type="primary"
+                          size="mini"
+                          @click="openBind"
+                      >绑定设备
+                      </el-button
                       >
                     </el-popover>
                   </div>
                   <el-row :gutter="20">
                     <div
-                      v-if="
+                        v-if="
                         classroomDetail.deviceList == null ||
                         classroomDetail.deviceList.length === 0
                       "
                     >
                       <div style="text-align: center">
                         <div
-                          style="
+                            style="
                             text-align: center;
                             margin-top: 50px;
                             color: #999;
                           "
                         >
                           <img
-                            src="@/assets/images/空空如也.png"
-                            alt="No Data"
-                            style="width: 200px; height: 200px"
+                              src="@/assets/images/空空如也.png"
+                              alt="No Data"
+                              style="width: 200px; height: 200px"
                           />
                           <p style="margin-top: 10px">这里空空如也</p>
                         </div>
@@ -439,26 +479,26 @@
                     </div>
                     <div>
                       <el-col
-                        :span="8"
-                        v-for="(device, index) in classroomDetail.deviceList"
-                        :key="device.id"
+                          :span="8"
+                          v-for="(device, index) in classroomDetail.deviceList"
+                          :key="device.id"
                       >
                         <div
-                          class="device-wrapper"
-                          @mouseenter="device._hover = true"
-                          @mouseleave="device._hover = false"
-                          style="position: relative"
+                            class="device-wrapper"
+                            @mouseenter="device._hover = true"
+                            @mouseleave="device._hover = false"
+                            style="position: relative"
                         >
                           <el-card
-                            shadow="hover"
-                            class="device-card"
-                            style="margin: 5px"
+                              shadow="hover"
+                              class="device-card"
+                              style="margin: 5px"
                           >
                             <!-- 删除按钮，悬浮时显示 -->
                             <div
-                              v-show="device._hover"
-                              @click="handleUnBindDevice(device)"
-                              style="
+                                v-show="device._hover"
+                                @click="handleUnBindDevice(device)"
+                                style="
                                 position: absolute;
                                 top: 6px;
                                 right: 6px;
@@ -467,8 +507,8 @@
                               "
                             >
                               <i
-                                class="el-icon-close"
-                                style="font-size: 20px"
+                                  class="el-icon-close"
+                                  style="font-size: 20px"
                               ></i>
                             </div>
                             <div style="text-align: center">
@@ -490,20 +530,33 @@
               <el-divider>教室模型</el-divider>
               <div class="sketchfab-embed-wrapper">
                 <iframe
-                  title="VR ClassRoom April 2021"
-                  frameborder="0"
-                  allowfullscreen
-                  mozallowfullscreen="true"
-                  webkitallowfullscreen="true"
-                  allow="autoplay; fullscreen; xr-spatial-tracking"
-                  xr-spatial-tracking
-                  execution-while-out-of-viewport
-                  execution-while-not-rendered
-                  web-share
-                  width="100%"
-                  height="700px"
-                  :src="classroomDetail.layoutMapUrl"
+                    title="VR ClassRoom April 2021"
+                    frameborder="0"
+                    allowfullscreen
+                    mozallowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    allow="autoplay; fullscreen; xr-spatial-tracking"
+                    xr-spatial-tracking
+                    execution-while-out-of-viewport
+                    execution-while-not-rendered
+                    web-share
+                    width="100%"
+                    height="700px"
+                    :src="classroomDetail.layoutMapUrl"
                 ></iframe>
+              </div>
+              <el-divider>教室实景图</el-divider>
+              <div class="classroom-photo">
+                <img
+                    :src="classroomDetail.photoUrl"
+                    alt="Classroom Photo"
+                    style="
+                      width: 100%;
+                      height: 100%;
+                      object-fit: cover;
+                      margin-right: 10px;
+                    "
+                />
               </div>
             </div>
           </el-card>
@@ -523,9 +576,10 @@ import {
   getClassroomDetail,
   unbindClassroomBindDevice,
   bindClassroomBindDevice,
+  getAllQRCode
 } from "@/apis/classroom";
-import { getAllBuilding } from "@/apis/building"; // 假设有一个获取所有楼栋的接口
-import { getDeviceByCodeOrName } from "@/apis/device";
+import {getAllBuilding} from "@/apis/building"; // 假设有一个获取所有楼栋的接口
+import {getDeviceByCodeOrName} from "@/apis/device";
 
 export default {
   data() {
@@ -551,15 +605,15 @@ export default {
       },
       buildingList: [],
       statusList: [
-        { label: "正常", value: "正常" },
-        { label: "维修中", value: "维修中" },
+        {label: "正常", value: "正常"},
+        {label: "维修中", value: "维修中"},
       ],
       // 自习，教学，会议，考试
       typeList: [
-        { label: "自习", value: "自习" },
-        { label: "教学", value: "教学" },
-        { label: "会议", value: "会议" },
-        { label: "考试", value: "考试" },
+        {label: "自习", value: "自习"},
+        {label: "教学", value: "教学"},
+        {label: "会议", value: "会议"},
+        {label: "考试", value: "考试"},
       ],
       newClassroom: {
         classroomCode: "",
@@ -620,6 +674,45 @@ export default {
     this.getAllBuilding();
   },
   methods: {
+    download() {
+      this.$confirm('确定要下载教室二维码吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        const loading = this.$loading({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+        getAllQRCode().then(res => {
+          const url = window.URL.createObjectURL(new Blob([res.data]));
+          const link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', '教室二维码数据.zip');
+          document.body.appendChild(link);
+          link.click();
+          loading.close();
+        }).catch(() => {
+          loading.close();
+        });
+      }).catch(() => {
+      });
+    },
+    handleAvatarChange(file, fileList) {
+      if (fileList.length > 1) fileList.shift();
+      const isImage = file.raw.type.startsWith('image/');
+      const isLt2M = file.raw.size / 1024 / 1024 < 2;
+      if (!isImage) return this.$message.error('只能上传图片文件');
+      if (!isLt2M) return this.$message.error('图片大小不能超过 2MB');
+      const reader = new FileReader();
+      reader.onload = e => {
+        this.editClassroom.photoUrl = e.target.result;
+      };
+      reader.readAsDataURL(file.raw);
+    },
     remoteMethod(query) {
       this.keyword = query;
       this.loading = true;
@@ -635,22 +728,22 @@ export default {
         pageSize: this.devicePageSize,
       };
       getDeviceByCodeOrName(params)
-        .then((res) => {
-          if (res.data.code === 200) {
-            res.data.data.list.forEach((item) => {
-              item.label = item.deviceCode + "-" + item.deviceName;
-            });
-            this.options = res.data.data.list;
-            this.deviceTotal = res.data.data.total;
+          .then((res) => {
+            if (res.data.code === 200) {
+              res.data.data.list.forEach((item) => {
+                item.label = item.deviceCode + "-" + item.deviceName;
+              });
+              this.options = res.data.data.list;
+              this.deviceTotal = res.data.data.total;
+              this.loading = false;
+            } else {
+              this.$message.error(res.data.message);
+              this.loading = false;
+            }
+          })
+          .catch((err) => {
             this.loading = false;
-          } else {
-            this.$message.error(res.data.message);
-            this.loading = false;
-          }
-        })
-        .catch((err) => {
-          this.loading = false;
-        });
+          });
     },
     handleBind() {
       if (this.value.length > 0) {
@@ -662,9 +755,9 @@ export default {
           if (res.data.code === 200) {
             this.$message.success("绑定成功");
             this.classroomDetail.deviceList =
-              this.classroomDetail.deviceList.concat(res.data.data);
+                this.classroomDetail.deviceList.concat(res.data.data);
             this.classroomDetail.deviceList.forEach((d) =>
-              this.$set(d, "_hover", false)
+                this.$set(d, "_hover", false)
             );
             this.value = [];
             this.getDevice();
@@ -679,29 +772,36 @@ export default {
       this.getDevice();
     },
     handleUnBindDevice(device) {
-      unbindClassroomBindDevice({
-        deviceId: device.id,
-        classroomId: this.classroomDetail.id,
-      }).then((res) => {
-        if (res.data.code === 200) {
-          this.$message.success("解绑成功");
-          this.classroomDetail.deviceList =
-            this.classroomDetail.deviceList.filter((d) => d.id !== device.id);
-        }
-      });
+      this.$confirm(`确认解绑教室 ${this.classroomDetail.classroomName} 的设备 ${device.deviceName} 吗？`, "提示", {
+        type: "warning",
+      })
+          .then(() => {
+            unbindClassroomBindDevice({
+              deviceId: device.id,
+              classroomId: this.classroomDetail.id,
+            }).then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("解绑成功");
+                this.classroomDetail.deviceList =
+                    this.classroomDetail.deviceList.filter((d) => d.id !== device.id);
+              }
+            });
+          })
+          .catch(() => {
+          });
     },
     handleDetail(column) {
       this.classroomDetail = {};
       this.classroomDetailDialog = true;
-      getClassroomDetail({ id: column.id }).then((res) => {
+      getClassroomDetail({id: column.id}).then((res) => {
         if (res.data.code === 200) {
           this.classroomDetail = res.data.data;
           if (
-            this.classroomDetail.deviceList !== null &&
-            this.classroomDetail.deviceList.length > 0
+              this.classroomDetail.deviceList !== null &&
+              this.classroomDetail.deviceList.length > 0
           ) {
             this.classroomDetail.deviceList.forEach((d) =>
-              this.$set(d, "_hover", false)
+                this.$set(d, "_hover", false)
             );
           }
         }
@@ -728,25 +828,26 @@ export default {
         return;
       }
       this.$confirm(
-        "确认删除选中的教室吗？该操作会解绑教室设备并删除该教室课表",
-        "提示",
-        {
-          type: "warning",
-        }
+          "确认删除选中的教室吗？该操作会解绑教室设备并删除该教室课表",
+          "提示",
+          {
+            type: "warning",
+          }
       )
-        .then(() => {
-          // 批量删除
-          console.log(this.selectedIds);
-          deleteClassroomBatch({ ids: this.selectedIds }).then((res) => {
-            if (res.data.code === 200) {
-              this.$message.success("删除成功");
-              this.getClassroomList();
-            } else {
-              this.$message.error(res.data.msg);
-            }
+          .then(() => {
+            // 批量删除
+            console.log(this.selectedIds);
+            deleteClassroomBatch({ids: this.selectedIds}).then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("删除成功");
+                this.getClassroomList();
+              } else {
+                this.$message.error(res.data.msg);
+              }
+            });
+          })
+          .catch(() => {
           });
-        })
-        .catch(() => {});
     },
     handleSizeChange(newSize) {
       this.pageSize = newSize;
@@ -763,34 +864,34 @@ export default {
         type: this.searchFields.type,
       };
       getClassroomList(params)
-        .then((res) => {
-          console.log("获取教室列表成功", res);
-          if (res.data.code === 200) {
-            this.classroomList = res.data.data.list;
-            this.total = res.data.data.total;
-          } else {
-            this.$message.error(res.data.msg);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          this.$message.error("获取教室列表失败");
-        });
+          .then((res) => {
+            console.log("获取教室列表成功", res);
+            if (res.data.code === 200) {
+              this.classroomList = res.data.data.list;
+              this.total = res.data.data.total;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            this.$message.error("获取教室列表失败");
+          });
     },
     getAllBuilding() {
       // 获取所有楼栋
       getAllBuilding()
-        .then((res) => {
-          console.log("获取所有楼栋成功", res);
-          if (res.data.code === 200) {
-            this.buildingList = res.data.data;
-          } else {
-            this.$message.error(res.data.msg);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+          .then((res) => {
+            console.log("获取所有楼栋成功", res);
+            if (res.data.code === 200) {
+              this.buildingList = res.data.data;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+          });
     },
     resetSearchFields() {
       this.searchFields.classroomName = "";
@@ -802,47 +903,48 @@ export default {
       this.getClassroomList();
     },
     handleEdit(row) {
-      this.editClassroom = { ...row };
+      this.editClassroom = {...row};
       this.editClassroomDialog = true;
       this.$refs.editForm.clearValidate();
     },
     handleDelete(row) {
       this.$confirm(
-        `确认删除教室 ${row.classroomName} 吗？该操作会解绑教室设备并删除该教室课表`,
-        "提示",
-        {
-          type: "warning",
-        }
+          `确认删除教室 ${row.classroomName} 吗？该操作会解绑教室设备并删除该教室课表`,
+          "提示",
+          {
+            type: "warning",
+          }
       )
-        .then(() => {
-          deleteClassroom({ id: row.id }).then((res) => {
-            if (res.data.code === 200) {
-              this.$message.success("删除成功");
-              this.getClassroomList();
-            } else {
-              this.$message.error(res.data.msg);
-            }
+          .then(() => {
+            deleteClassroom({id: row.id}).then((res) => {
+              if (res.data.code === 200) {
+                this.$message.success("删除成功");
+                this.getClassroomList();
+              } else {
+                this.$message.error(res.data.msg);
+              }
+            });
+          })
+          .catch(() => {
           });
-        })
-        .catch(() => {});
     },
     submitForm() {
       this.$refs.form.validate((valid) => {
         if (valid) {
           addClassroom(this.newClassroom)
-            .then((res) => {
-              if (res.data.code === 200) {
-                this.$message.success("新增成功");
-                this.addClassroomDialog = false;
-                this.getClassroomList();
-              } else {
-                this.$message.error(res.data.msg);
-              }
-            })
-            .catch((err) => {
-              console.error(err);
-              this.$message.error("新增失败");
-            });
+              .then((res) => {
+                if (res.data.code === 200) {
+                  this.$message.success("新增成功");
+                  this.addClassroomDialog = false;
+                  this.getClassroomList();
+                } else {
+                  this.$message.error(res.data.msg);
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+                this.$message.error("新增失败");
+              });
         } else {
           this.$message.warning("请填写完整信息");
         }
@@ -852,19 +954,19 @@ export default {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
           updateClassroom(this.editClassroom)
-            .then((res) => {
-              if (res.data.code === 200) {
-                this.$message.success("编辑成功");
-                this.editClassroomDialog = false;
-                this.getClassroomList();
-              } else {
-                this.$message.error(res.data.msg);
-              }
-            })
-            .catch((err) => {
-              console.error(err);
-              this.$message.error("编辑失败");
-            });
+              .then((res) => {
+                if (res.data.code === 200) {
+                  this.$message.success("编辑成功");
+                  this.editClassroomDialog = false;
+                  this.getClassroomList();
+                } else {
+                  this.$message.error(res.data.msg);
+                }
+              })
+              .catch((err) => {
+                console.error(err);
+                this.$message.error("编辑失败");
+              });
         } else {
           this.$message.warning("请填写完整信息");
         }
@@ -877,6 +979,7 @@ export default {
 .con::-webkit-scrollbar {
   display: none;
 }
+
 .classroom-detail {
   padding: 20px;
 }
@@ -888,5 +991,47 @@ export default {
   height: 100%;
   color: #999;
   font-size: 14px;
+}
+
+.avatar-uploader {
+  display: inline-block;
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 100%;
+  height: 100%;
+  line-height: 100px;
+  text-align: center;
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 6px;
+  object-fit: cover;
+  display: block;
+}
+
+.classroom-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 }
 </style>
