@@ -153,9 +153,9 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column label="操作" align="center" fixed="right">
           <template slot-scope="scope">
-            <div style="display: flex; justify-content: center">
+            <div style="text-align: center">
               <el-button
                   size="mini"
                   @click="handleDetail(scope.row)"
@@ -171,6 +171,13 @@
               >编辑
               </el-button
               >
+              <el-button
+                  size="mini"
+                  type="text"
+                  @click="handleDownload(scope.row)"
+                  style="color: #409eff"
+              >下载二维码
+              </el-button>
               <el-button
                   size="mini"
                   type="text"
@@ -576,7 +583,7 @@ import {
   getClassroomDetail,
   unbindClassroomBindDevice,
   bindClassroomBindDevice,
-  getAllQRCode
+  getAllQRCode, downloadQR
 } from "@/apis/classroom";
 import {getAllBuilding} from "@/apis/building"; // 假设有一个获取所有楼栋的接口
 import {getDeviceByCodeOrName} from "@/apis/device";
@@ -674,6 +681,24 @@ export default {
     this.getAllBuilding();
   },
   methods: {
+    handleDownload(row) {
+      this.$confirm('确定要下载教室二维码吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        downloadQR({classroomCode: row.classroomCode}).then(res => {
+          const url = window.URL.createObjectURL(new Blob([res.data]));
+          const link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', `${row.classroomCode}.png`);
+          document.body.appendChild(link);
+          link.click();
+        })
+      }).catch(() => {
+      });
+    },
     download() {
       this.$confirm('确定要下载教室二维码吗？', '提示', {
         confirmButtonText: '确定',

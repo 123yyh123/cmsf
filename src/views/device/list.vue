@@ -126,7 +126,7 @@
           @select-all="handleSelectAll"
       >
         <el-table-column type="selection" width="55"/>
-        <el-table-column prop="deviceCode" label="设备编号" width="150"/>
+        <el-table-column prop="deviceCode" label="设备编号"/>
         <el-table-column prop="deviceName" label="设备名称"/>
         <el-table-column prop="type" label="设备类型" width="120"/>
         <el-table-column prop="model" label="型号" width="150"/>
@@ -185,6 +185,13 @@
               >编辑
               </el-button
               >
+              <el-button
+                  size="mini"
+                  type="text"
+                  @click="handleDownload(scope.row)"
+                  style="color: #409eff"
+              >下载二维码
+              </el-button>
               <el-button
                   size="mini"
                   type="text"
@@ -302,7 +309,7 @@ import {
   getDeviceBindTrace,
   updateDeviceBindStatus,
   deleteDeviceBatch,
-  getAllQRCode,
+  getAllQRCode, downloadDeviceQR,
 } from "@/apis/device";
 import BindTimeline from "@/components/BindTimeline.vue";
 
@@ -365,6 +372,24 @@ export default {
     this.getDeviceList();
   },
   methods: {
+    handleDownload(row) {
+      this.$confirm('确定要下载二维码吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        downloadDeviceQR({deviceCode: row.deviceCode}).then(res => {
+          const url = window.URL.createObjectURL(new Blob([res.data]));
+          const link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.setAttribute('download', `${row.deviceCode}.png`);
+          document.body.appendChild(link);
+          link.click();
+        })
+      }).catch(() => {
+      });
+    },
     download() {
       this.$confirm('确定要下载设备二维码吗？', '提示', {
         confirmButtonText: '确定',

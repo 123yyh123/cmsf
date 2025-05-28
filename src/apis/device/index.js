@@ -49,3 +49,7 @@ export const getRepairDeviceBySelf = (params) => {
 export const getAllQRCode = () => {
     return download(baseUrl + '/getAllQR/download')
 }
+
+export const downloadDeviceQR = (params) => {
+    return download(baseUrl+'/download/QR', params)
+}

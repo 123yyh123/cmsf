@@ -16,7 +16,7 @@
 
       <!-- 表格展示 -->
       <el-table :data="repairList" border style="width: 100%;">
-        <el-table-column prop="deviceCode" label="设备编号" width="120"/>
+        <el-table-column prop="deviceCode" label="设备编号"/>
         <el-table-column prop="deviceName" label="设备名称"/>
         <el-table-column prop="createdByName" label="报修人" width="100"/>
         <el-table-column prop="description" label="故障描述"/>

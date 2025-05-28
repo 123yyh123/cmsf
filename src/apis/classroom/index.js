@@ -56,6 +56,10 @@ export const getAllQRCode = () => {
   return download(baseUrl + '/getAllQR/download')
 }
 
+export const downloadQR = (params) => {
+  return download(baseUrl+'/download/QR', params)
+}
+
 
 export const downloadTemplateSchedule = (params) => {
   return download(baseUrl+'/download/template/schedule', params)

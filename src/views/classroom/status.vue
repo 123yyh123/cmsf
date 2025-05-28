@@ -72,10 +72,15 @@
             :prop="slot"
         >
           <template v-slot="scope">
-            <span @click="handleDetail(scope.row.classroomId, scope.column.property)"
-                  :class="scope.row[scope.column.property] === '空闲' ? 'free' : 'occupied'">{{
-                scope.row[scope.column.property]
-              }}</span>
+            <el-tooltip class="item" effect="dark" :content="scope.row[scope.column.property]" placement="top">
+      <span
+          @click="handleDetail(scope.row.classroomId, scope.column.property)"
+          :class="scope.row[scope.column.property] === '空闲' ? 'free' : 'occupied'"
+          style="display:inline-block; width: 60px; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+      >
+        {{ scope.row[scope.column.property] }}
+      </span>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -119,6 +124,14 @@
           </el-descriptions-item>
           <el-descriptions-item label="备注">{{ detailDialog.data.remark || '--' }}</el-descriptions-item>
         </el-descriptions>
+        <el-divider/>
+        <el-button
+            type="primary"
+            icon="el-icon-edit"
+            size="small"
+            @click="handleEdit(detailDialog.data)"
+        >取消使用
+        </el-button>
       </el-card>
     </el-dialog>
   </div>
@@ -130,6 +143,7 @@ import {getAllBuilding} from "@/apis/building";
 import {getSchedule, getScheduleDetail, downloadTemplateSchedule} from "@/apis/classroom";
 import dayjs from "dayjs";
 import {baseUrl} from "@/config";
+import {cancelSchedule} from "@/apis/reservation";
 
 export default {
   data() {
@@ -165,6 +179,25 @@ export default {
     this.fetchData();
   },
   methods: {
+    handleEdit(data) {
+      this.$confirm('确定要取消使用吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        cancelSchedule({scheduleId: data.id}).then(res => {
+          if (res.data.code === 200) {
+            this.$message.success('取消成功');
+            this.detailDialog.visible = false;
+            this.fetchData();
+          } else {
+            this.$message.error(res.data.msg || '取消失败');
+          }
+        })
+      }).catch(() => {
+        this.$message.error('取消失败');
+      });
+    },
     download() {
       this.$confirm('确定要下载模板吗？', '提示', {
         confirmButtonText: '确定',
